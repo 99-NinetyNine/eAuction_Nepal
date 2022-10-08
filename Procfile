@@ -1,0 +1,1 @@
+web: gunicorn ebidding.wsgi --log-file -

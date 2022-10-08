@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}eBid{% endblock title %}</title>
+    
+    {% load static %}
+    {% load crispy_forms_tags %}
+    
+    <link
+      rel="shortcut icon"
+      href="https://salilesh-bucket.s3.us-east-2.amazonaws.com/title_logo.ico"
+    />
+    {% comment %} <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'testy/css/base.css' %}"
+    /> {% endcomment %}
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+      integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
+      crossorigin="anonymous"
+    />
+    <style>
+      {% block otherCSS %}
+      {% comment %} css goes here! {% endcomment %}
+      {% endblock otherCSS %}
+    </style>
+<body>
+
+{% block navbar %}
+{% include '_navbar.html' %}
+{% endblock navbar %}
+
+
+<div class="container ml-5 mt-3">
+    <div class="row">
+      <div class="col-sm-4 float-left">
+      {% block left_sidebar %}
+        
+      {% endblock left_sidebar %}
+      </div>
+      <div class="col-sm-8">
+        
+        {% block content %}
+
+        {% endblock content %}
+      </div>
+      <div class="col-sm-4">
+        {% block right_content %}
+
+        {% endblock right_content %}
+      </div>
+      
+    </div>
+ </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+$(document).ready(function (event) {
+
+    {% block users_otherJs %}
+
+    {% endblock users_otherJs %}
+
+
+    });
+    {% block users_plainJS %}
+
+    {% endblock users_plainJS %}
+
+
+  </script>
+  
+</body>
+
+</html>
