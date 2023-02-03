@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
   <a class="navbar-brand" href="{% url 'home' %}">
     <img
-      src="https://salilesh-bucket.s3.us-east-2.amazonaws.com/index_logo.gif"
+      src="https://salilesh-bucket.s3.us-east-2.amazonaws.com/logo.png"
       width="30"
       height="30"
       alt=""
@@ -27,28 +27,33 @@
           >Home <span class="sr-only">(current)</span></a
         >
       </li>
+      
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'notification_list' %}"
-          >Notifications
-          <span id="notify-span" class="badge badge-pill align-text-center"
-            >99+</span
-          >
-        </a>
-      </li>
-      <li class="nav-item">
-        {% if request.user.is_authenticated %}
+        
         <a
           class="nav-link"
-          href="{% url 'profile_view' request.user.username %}"
-          >Profile</a
-        >
-        {% endif %}
+           href="{{ request.user.get_absolute_url }}">
+          Profile</a>
+        
       </li>
+    
+    
+    <li class="nav-item ">
+    <a class="nav-link" id="notification_id">
+    Notifications
+    <span id="notify-span" class="badge badge-pill align-text-center">
+    99+
+    </span>
+    </a>
+    </li>
+    
+    <li class="nav-item"><a class="nav-link" id="bid_pending_list" href="#">My Bids</a></li>
 
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'favourite_list' %}">Favourites</a>
-      </li>
-
+    <li class="nav-item"><a class="nav-link" href="{% url 'explore' %}">Explore</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'suggestion' %}">Suggestions</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'create_auction' %}">New auction</a> </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'favourite_lists' %}">Favourites</a></li>
+  
       <li class="nav-item dropdown">
         <a
           class="nav-link dropdown-toggle"
@@ -71,41 +76,41 @@
         </div>
       </li>
     </ul>
-    {% else %} {% endif %} {% if request.user.is_authenticated %}
+     
     <form
       class="input-group mb-3"
       style="max-width: 300px"
       method="GET"
-      action="{% url '#' %}"
+      action="."
     >
       <input
         class="form-control"
         type="text"
-        id="search"
+        id="search_field"
         aria-label="Search"
         placeholder="Search Testy"
         name="q"
       />
       <div class="input-group-append">
-        <button class="btn btn-success" id="search-user" type="submit">
+        <button class="btn btn-success" id="search_user" type="submit">
           Go
         </button>
       </div>
     </form>
-    {% endif %}
+    
   </div>
 </nav>
+{% endif %}
 <div class="nav-scroller bg-white shadow-sm" style="margin-top: 5rem">
   <nav class="nav nav-underline">
+    
     {% if request.user.is_authenticated %}
-    <a class="nav-link" href="{% url '#' %}">Explore</a>
-    <a class="nav-link" href="{% url '#' %}">Suggestions</a>
-    <a class="nav-link" href="{% url '#' %}" %>Story</a>
-    <a class="nav-link" href="{% url '#' %}">Go Live</a>
-    <a class="nav-link" href="{% url '#' %}">Tweet</a>
+    
     {% else %}
-    <h4 style="margin-left: 6rem">Welcome to Testy</h4>
+    <h4 style="margin-left: 6rem">Welcome to Ebid</h4>
     <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+    
     {% endif %}
+  
   </nav>
 </div>

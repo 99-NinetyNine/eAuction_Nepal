@@ -1,19 +1,13 @@
-{% extends 'base.html' %}
-{% load crispy_forms_tags %}
-
-{% block left_sidebar %}
 <h4>
 <div class="text-left" style="background-color:#ffffff;border:1px solid black;">
 <nav class="nav flex-column ml-5">
 {% if request.user.is_authenticated %}
-  <a class="nav-link active" href="{% url 'edit_profile'%}">Edit Profile</a>
+  <a class="nav-link active" href="{% url 'change_profile' request.user.id %}">Edit Profile</a>
   <a class="nav-link" href="{% url 'password_change' %}">Password Change</a>
-  
+  <a class="nav-link" href="">Security and Privacy</a>
+  {% comment %} {% url 'privacy_setting' %} {% endcomment %}
 {% endif %}
   <a class="nav-link" href="{% url 'password_reset' %}">Forgot Password</a>
 </nav> 
 </div>
 </h4>
-{% endblock left_sidebar %}
-{% block content %}
-{% endblock %}

@@ -1,3 +1,48 @@
-from django.test import TestCase
+from django.test import (
+    TestCase,
+    RequestFactory,
+    AsyncRequestFactory,
+)
+import operator
 
-# Create your tests here.
+from .models import (
+    Estate,
+    Bids,
+    Notification,
+)
+
+from users.models import (
+    BidUser,
+    Rating,
+)
+
+class HomePageTest(TestCase):
+    def test_url_okay(self):
+        resp = self.client.get(reverse('home'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, '_index.html')
+
+class RatingPriorityTest(TestCase):
+    
+    def setUp(self):
+        self.user1=BidUser.objects.create(username="user1")
+        self.user2=BidUser.objects.create(username="user2")
+        self.user3=BidUser.objects.create(username="user3")
+
+        self.estate=Estate.objects.create(title="test estate",description="test desc",user=self.user1,price_min_value=2,price_max_value=40)
+        self.estate.bids.create(user=self.user2,bid_amount=15)
+        self.estate.bids.create(user=self.user3,bid_amount=5)
+    
+    #py manage.py test auctions.RatingPriorityTest
+    def test_competition(self):
+        Rating.objects.create(from_user=self.user1,to_user=self.user2,rating='4')
+        Rating.objects.create(from_user=self.user3,to_user=self.user2,rating='3')
+        Rating.objects.create(from_user=self.user1,to_user=self.user3,rating='1')
+        from django.db.models import Avg
+
+        qs=self.estate.bids.annotate(ratings=Avg('user__to__rating'))
+        qs.order_by('bid_amount','-ratings')
+        
+        for k in qs:
+            print("\namount",k.bid_amount)
+            print("\nrating==\n",k.ratings)

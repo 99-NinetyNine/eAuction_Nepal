@@ -1,0 +1,44 @@
+done{
+bid prioirty
+search user
+
+notification
+}
+tomoroow
+
+{
+
+draggable create auction
+select winner
+
+interaction bid(form)
+https://github.com/nashio/star-rating-svg/blob/master/src/jquery.star-rating-svg.js
+use this
+
+
+
+
+}
+
+later(week)
+{
+    advanced location search
+    pagination bid list
+}
+
+later(1 month)
+{
+    React
+}
+
+Later(2 month)
+{
+    AI
+}
+
+Later (3 month)
+{
+    Mobile app
+}
+
+

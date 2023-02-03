@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+    
+{% block title %}Ebid | Update{% endblock title %}
+
+{% block content %}
+
+
+
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}<br>
+    {{ formset.management_form }}
+    {% for f in formset %}
+      {{ f|crispy }}
+    {% endfor %}
+    <input type="submit" value="Update" class="btn btn-primary">
+</form>
+
+{% endblock content %}

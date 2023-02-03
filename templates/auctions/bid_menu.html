@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+<div id="bidMenu">
+
+{% if has_bid %}
+<p>{{ bid_amount }}</p>
+<p id='changeBid' class='bidOption' >Change bid</p>
+<p id='deleteBid' class='bidOption'>Delete bid </p>
+
+{% else %}
+<p id='addBid' class='bidOption'>Apply bid</p>
+{% endif %}
+
+</div>
+
+
+
+<form id="bidForm"  class="{{ estate.id }}" style="display:none;" action='.' method="POST">
+{% csrf_token %}
+{{ bid_form | crispy }}
+
+<button class="btn btn-primary" id="bidFormSubmit" value=''>Submit</button>
+</form>
+
+

@@ -1,0 +1,52 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ user.username }} | Profile{% endblock title %}
+
+{% block content %}
+
+{% comment %} user is sent via context  {% endcomment %}
+
+
+<a href="#">
+<img class="rounded-circle" height="40" width="40" src={{ user.profile_pic.url }}>
+</a>
+<strong>@{{ user.username }}</strong>
+{% if user == request.user %}
+<p>
+<a href="{{ user.get_update_url }}" role="button" class="btn btn-primary">Change profile</a>
+</p>
+{% endif %}
+
+{% include 'users/ratings.html' %}
+{% include "users/rating_form.html" %}
+
+
+<br><br>
+
+{% for estate,is_liked ,is_disliked,is_favourite in auctions %}
+
+{% include "auctions/auction_top_part.html" %}
+<br>
+{% include '_single_estate.html' %} 
+
+{% empty %}
+    {% if user == request.user %}
+        <h5>You haven't created any post yet.
+        <a href="{% url 'create_auction' %}">
+        Add now</h5>
+    {% else %}
+        <h5>No posts yet</h5>
+    {% endif %}
+
+
+
+{% endfor %}
+
+<br>
+<br><br>
+
+
+
+
+{% endblock content %}

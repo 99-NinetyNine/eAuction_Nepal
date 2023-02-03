@@ -1,0 +1,15 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Ebid | Profile Edit{% endblock title %}
+
+{% block content %}
+<form action = "" method='POST'>{% csrf_token %}
+
+{{ form|crispy }}
+
+<button type="submit" class="btn btn-outline-primary">Change Profile</button>
+</form>
+
+
+{% endblock content %}

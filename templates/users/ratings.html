@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+
+<div id="rate_user" 
+    value=
+    {% if not user == request.user %}
+    "{{ user.id }}"
+    {% else %}
+    ""
+    {% endif %}>
+<span class="fa fa-star checked"></span>
+<span class="fa fa-star checked"></span>
+<span class="fa fa-star checked"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="whatU">{% firstof rating user.my_ratings %}</span>
+
+</div>

@@ -1,0 +1,11 @@
+<a href=
+{% if detail_view %}
+"#"
+{% else %}
+"{{ estate.get_absolute_url }}"
+{% endif %}
+>
+{% include 'auctions/carousel.html' %}
+</a>
+
+

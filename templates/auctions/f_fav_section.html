@@ -1,0 +1,16 @@
+<form action="." method="POST">
+    {% csrf_token %}
+    
+    {% if is_favourite or tuple.1 == True %}
+    <button type="submit" class="btn" id="favourite" name="tweet_id" value="{{ estate.id }}">
+    <i class="fa fa-heart" style="font-size:36px;color:red"></i>
+    </button>
+
+    {% elif not is_favourite or tuple.1 == False %}
+    <button type="submit" class="btn " id="favourite" name="tweet_id" value="{{ estate.id }}">
+    <i class="fa fa-heart-o" style="font-size:36px;"></i>
+    </button>
+    
+    {% endif %}
+</form>
+

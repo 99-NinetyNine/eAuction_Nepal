@@ -9,8 +9,9 @@
     {% load crispy_forms_tags %}
     
     <link
-      rel="shortcut icon"
-      href="https://salilesh-bucket.s3.us-east-2.amazonaws.com/title_logo.ico"
+      rel="icon"
+      href="https://salilesh-bucket.s3.us-east-2.amazonaws.com/favicon.ico"
+      type="image/x-icon"
     />
     {% comment %} <link
       rel="stylesheet"
@@ -23,13 +24,10 @@
       integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
       crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
-      integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ"
-      crossorigin="anonymous"
-    />
-    <style>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>      
+
       {% block otherCSS %}
       {% comment %} css goes here! {% endcomment %}
       {% endblock otherCSS %}
@@ -41,11 +39,12 @@
 {% endblock navbar %}
 
 
-<div class="container ml-5 mt-3">
+<div class="container">
     <div class="row">
-      <div class="col-sm-4 float-left">
+      <div class="col-sm-3">
       {% block left_sidebar %}
-        
+        {% include "_notification_list.html" %}
+        {% include "auctions/bid_pending_lists.html" %}
       {% endblock left_sidebar %}
       </div>
       <div class="col-sm-8">
@@ -54,9 +53,10 @@
 
         {% endblock content %}
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-1">
         {% block right_content %}
-
+        
+        {% include "users/search_results.html" %}
         {% endblock right_content %}
       </div>
       
@@ -73,22 +73,350 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
+<script type="text/javascript">
 
 $(document).ready(function (event) {
+    $("#notifications").hide();
+    $("#my_bids").hide();
+    $("#ratingForm").hide();
+    $('#search_results').hide();
+    
 
-    {% block users_otherJs %}
 
-    {% endblock users_otherJs %}
+    $(document).on('click','.bidOption',function(event){
+      event.preventDefault();
+      $('#bidForm').toggle();
+        
+      
 
+    })
+    $(document).on('click','#addBid',function(event){
+      event.preventDefault();
+      $('#bidFormSubmit').val('0');
+    })
+    $(document).on('click','#changeBid',function(event){
+      event.preventDefault();
+      $('#bidFormSubmit').val('1');
+    })
+    $(document).on('click','#deleteBid',function(event){
+      event.preventDefault();
+      if(!confirm("Are you sure you want to delete bid?")){
+        return false;
+      }
+      $('#bidFormSubmit').val('2');
+      $('#bidFormSubmit').click();
 
+    })
+
+    $(document).on('click','#bidFormSubmit',function(event){
+      event.preventDefault();
+      var intent=$(this).val();
+      var id=$('#bidForm').attr('class');
+      console.log("hi");
+      console.log(id);
+      var amount=$("#id_bid_amount").val();
+
+      $.ajax({
+        type: 'POST',
+        url: '{% url "handle_bid" %}',
+        data: { 'id': id,'intent':intent,'bid_amount':amount, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+        dataType: 'json',
+        success: function (response) {
+        
+        $("#bidSection").html(response['html']);
+        if(intent == 0 || intent=="1")
+        {
+          $("#bid_list").html(response['bid_list']);
+        }
+        
+        
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+        
+      });  
+      
+
+    })
+
+    function n_handle(value,pk)
+    {
+      $.ajax({
+        type: 'POST',
+        url: '{% url "handle_notification" %}',
+        data: { 'id': pk,'intent':value, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+        dataType: 'json',
+        success: function (response) {
+          console.log(value);
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+      });
+    }
+
+    
+    
+
+    
+
+    $(document).on('click','.n_seen',function(event){
+      event.preventDefault();
+      var pk=$(this).attr('value');
+      $('#nId'+pk).removeClass("active");
+      var intent='0';
+      var res=n_handle(intent,pk);
+      window.location.href=$(this).attr('href');
+
+    })
+    $(document).on('click','.n-delete',function(event){
+      event.preventDefault();
+      var pk=$(this).attr('value');
+      $('#nId'+pk).hide();
+      {% comment %} "slide", { direction: "right" }, 1100); {% endcomment %}
+      var intent='1';
+      var res=n_handle(intent,pk);
+
+    })
+    $(document).on('click','#nClear',function(event){
+      event.preventDefault();
+      $(this).hide();
+      if(!confirm("Are you sure you want to clear all notifications?")){
+        return false;
+      }
+      
+      var pk=$(this).attr('value');
+
+      $('#notifications').children().fadeOut("slow").promise().done(function() {
+        var data="<h5>All cleared !!";
+        $('#notifications').append(data);
+        $('#notifications').fadeIn("slow");
+      })
+      var intent='2';
+      var res=n_handle(intent,pk);
+
+    })
+
+    $(document).on('click', '#like', function (event) {
+      event.preventDefault();
+      
+      var pk = $(this).attr('value');
+    
+      var intent=0;
+      $.ajax({
+        type: 'POST',
+        url: '{% url "like_auction" %}',
+        data: { 'id': pk,'intent':intent, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+        dataType: 'json',
+        success: function (response) {
+        $("#likeSection"+pk).html(response['like_html']);
+        $("#dislikeSection"+pk).html(response['dislike_html']);
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+      });
     });
+
+  $(document).on('click', '#dislike', function (event) {
+    event.preventDefault();
+    var pk = $(this).attr('value');
+    var intent=1;
+    $.ajax({
+      type: 'POST',
+      url: '{% url "like_auction" %}',
+      data: { 'id': pk,'intent':intent, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+      dataType: 'json',
+      success: function (response) {
+    
+      $("#likeSection"+pk).html(response['like_html']);
+        $("#dislikeSection"+pk).html(response['dislike_html']);
+      
+
+      },
+      error: function (rs, e) {
+      console.log(rs.responseText);
+      },
+    });
+  });
+    
+  $(document).on('click', '#favourite', function (event) {
+    event.preventDefault();
+    var pk = $(this).attr('value');
+    var favSection="fav-section"+pk;
+    $.ajax({
+      type: 'POST',
+      url: '{% url "favourite_auction" %}',
+      data: { 'id': pk, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+      dataType: 'json',
+      success: function (response) {
+    
+      $('#'+favSection).html(response['form']);
+      
+
+      },
+      error: function (rs, e) {
+      console.log(rs.responseText);
+      },
+    });
+  });
+
+
+
+  $("#bid_pending_list").click(function(event){
+      
+    event.preventDefault();
+    $("#notifications").hide();
+    $("#my_bids").toggle();
+  
+    $.ajax({
+      type: 'GET',
+      url: '{% url "bid_pending_lists" %}',
+      data: {},
+      dataType: 'json',
+      success: function (response) {
+    
+      $('#my_bids').html(response['form']);
+      
+
+      },
+      error: function (rs, e) {
+      console.log(rs.responseText);
+      },
+    });    
+  });
+
+  $("#notification_id").click(function(event){ 
+    event.preventDefault();
+    $("#my_bids").hide();
+    $("#notifications").toggle();
+  
+    $.ajax({
+      type: 'GET',
+      url: '{% url "notification_list" %}',
+      data: {},
+      dataType: 'json',
+      success: function (response) {
+    
+      $('#notifications').html(response['form']);
+      
+
+      },
+      error: function (rs, e) {
+      console.log(rs.responseText);
+      },
+    });    
+  });
+  
+
+
+
+
+
+    $(document).on('click', '#delete_bid', function (event) {
+      event.preventDefault();
+      var pk = $(this).attr('value');
+      var bidRow="bidRow"+pk;
+      $.ajax({
+        type: 'POST',
+        url: '{% url "delete_bid" %}',
+        data: { 'id': pk, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+        dataType: 'json',
+        success: function (response) {
+      
+        $('#'+bidRow).remove();
+        
+
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+      });
+  });
+    
+
+    {% comment %} rating user  {% endcomment %}
+    $(document).on('click', '#rate_user', function (event) {
+      event.preventDefault();
+      var pk = $(this).attr('value');
+      if(pk==""){
+        return ;
+      }
+      var ratingForm="ratingForm";
+      $.ajax({
+        type: 'GET',
+        url: '{% url "rate_user" %}',
+        data: { 'to_user_id': pk,},
+        dataType: 'json',
+        success: function (response) {
+      
+        $('#'+ratingForm).show().html(response['form']);
+        
+
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+      });
+    });
+    
+    $(document).on('click', '#rate_user_form_submit', function (event) {
+      event.preventDefault();
+      var pk = $(this).attr('value');
+      if(pk==""){
+        return ;
+      }
+      var rating=$('#id_rating').find(":selected").val();
+      $("#ratingForm").hide();
+      $.ajax({
+        type: 'POST',
+        url: '{% url "rate_user" %}',
+        data: { 'to_user_id': pk,'rating':rating,'csrfmiddlewaretoken': '{{ csrf_token }}'},
+        dataType: 'json',
+        success: function (response) {
+      
+        var x=response['rating_value'];
+        $(".whatU").html(x);
+        console.log(response['rating_value']);
+
+        },
+        error: function (rs, e) {
+        console.log(rs.responseText);
+        },
+      });
+    });
+
+    $(document).on('click', '#search_user', function (event) {
+        event.preventDefault();
+        var query=$("#search_field").val();
+        {% comment %} ('value'); {% endcomment %}
+        console.log(query);
+        $.ajax({
+          type: 'GET',
+          url: '{% url "search_user" %}',
+          data: {'query': query,},
+          dataType: 'json',
+          success: function (response) {
+            $('#search_results').show().html(response['json_data']);            
+          },
+        });
+    }); 
+    
+
+    {% block javascript  %}
+
+    {% endblock javascript %}
+
+
+});
     {% block users_plainJS %}
+
 
     {% endblock users_plainJS %}
 
 
-  </script>
+</script>
   
 </body>
 

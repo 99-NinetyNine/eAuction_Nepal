@@ -3,7 +3,7 @@ from django.http import HttpResponse
 # Create your views here.
 
 def suggestion(request):
-    HttpResponse("Suggestion..Subas AI")
+    return render(request,"ai/suggestion.html",{})
 
 def explore(request):
-    HttpResponse("Suggestion..Subas AI")
+    return render(request,"ai/explore.html",{})

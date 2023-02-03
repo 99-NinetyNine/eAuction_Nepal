@@ -1,0 +1,20 @@
+
+<div id="search_results">
+<h5>Search results</h5>
+    {% for user in users %}
+        <a href="{{ user.get_absolute_url }}">
+            <img src={{ user.profile_pic.url }} class="rounded-circle" width="30" height="30">
+            <strong style="margin:0 0 0 0.5rem;">{{ user.first_name }} {{ user.last_name }}</strong><br>
+            <b style="margin:0 0 0 2rem;">@{{ user.username}}</b><br>
+        </a>
+        {% if not forloop.last %}<hr>{% endif %}
+            
+    {% endfor %}
+</div>
+
+    
+
+
+ 
+      
+

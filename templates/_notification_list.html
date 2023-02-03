@@ -1,0 +1,70 @@
+{% load humanize %}
+<div class="nil" style="" area-expanded="false" id="notifications">
+{% if request.user.bids_alert.count >= 1 %}
+<small id="nClear" value="{{ request.user.id }}">Clear all notification</small>
+{% endif %}
+    
+  <div class="list-group">
+  
+  {% for notice,is_liked,is_auction,is_bid_notice,msg,is_checked in notifications %}
+  
+  <a href={% if is_liked or is_auction %}"{{ notice.estate.get_absolute_url }}" {% elif is_bid_notice %}"{{ notice.estate.get_absolute_url }}"{% endif %}
+     id="nId{{ notice.id }}"
+  class="list-group-item list-group-item-action flex-column align-items-start n_seen {% if not is_checked %}active{% endif %}" value="{{ notice.id }}">
+    <div class="d-flex w-300 justify-content-left">
+      <h5 class="mb-1">
+        {{ notice.user.username }}
+      <small>{{ notice.created| naturaltime }}</small>
+
+      <div class="btn-group dropleft">
+        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        
+        </button>
+        <div class="dropdown-menu n-delete" value="{{ notice.id }}">
+        Delete Notification
+        </div>
+      </div>
+
+      </h5>
+      
+       
+    </div>
+
+    
+    <h5 class="mb-1">
+        {% if not is_bid_notice %}
+        {{ notice.estate.title }}
+        {% else %}
+        {{ notice.bid.user.username }}
+        {% endif %} 
+    </h5>
+
+    
+
+    <p class="mb-1">
+      {{ msg }}
+    </p>
+
+    <p class="mb-1">
+    {% if not is_bid_notice and not is_like %}
+    {{ notice.estate.description }}
+    {% endif %}
+    </p>
+
+    </a>
+
+    {% if is_auction_notice %}
+    {% comment %} put location {% endcomment %}
+    <small>Expires: {{ notice.estate.expiry_date| naturaltime}}</small>
+  
+    {% endif %}
+
+  </div>
+
+
+  {% endfor %}
+</div>
+  
+
+</div>
+

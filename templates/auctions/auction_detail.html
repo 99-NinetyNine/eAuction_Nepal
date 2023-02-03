@@ -1,0 +1,37 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% block title %}Ebid | {{ estate.title }}{% endblock title %}
+
+
+{% block left_sidebar %}
+
+{% for estate,is_liked,is_disliked,is_favourite in single_auction %}
+
+{% include "auctions/auction_top_part.html" %}
+<h5>{{ estate.title }}</h5>
+<p>{{ estate.description }}<p>
+{% include "_single_estate.html" %}
+
+
+{% include 'auctions/expiry_price.html' %}
+
+
+{% if not  request.user == estate.user %}
+<div id="bidSection">
+{% include 'auctions/bid_menu.html' %}
+</div>
+{% endif %}
+
+{% endfor %}
+
+{% endblock left_sidebar %}
+
+
+{% block content %}
+
+
+{% include "auctions/bid_list.html" %}
+
+{% endblock content %}
+

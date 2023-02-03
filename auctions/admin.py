@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Place,Estate,Notification,Bids
+from .models import Estate,Notification,Bids,EstateImage
 
 admin.site.register(Estate)
 admin.site.register(Bids)
 admin.site.register(Notification)
-admin.site.register(Place)
+admin.site.register(EstateImage)
 
