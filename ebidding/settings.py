@@ -1,5 +1,5 @@
 import os
-import django_heroku
+
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,7 +18,7 @@ INSTALLED_APPS = [
 
     #3rd party
     'crispy_forms',
-    'location_field.apps.DefaultConfig',
+    #'location_field.apps.DefaultConfig',
 
     #local
     'users',
@@ -133,5 +133,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 AUTH_USER_MODEL = 'users.BidUser'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-django_heroku.settings(locals())
