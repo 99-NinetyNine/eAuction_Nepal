@@ -61,7 +61,7 @@ class ProfileEditView(generic.UpdateView):
     template_name="users/profile_change.html"
 
     def get_object(self):
-        return BidUser.objects.get(user=self.request.user)
+        return BidUser.objects.get(id=self.request.user.id)
 
 def RateUser(request):
     context_object_name="rating_form"
@@ -168,3 +168,8 @@ class SearchUser(generic.View):
             self.context_object_name:self.get_queryset(),
         }
         return context
+from django.contrib.auth.views import LogoutView
+class MyLogoutView(LogoutView):
+    template_name = "users/home.html"
+    extra_context = {"form": "logout"}
+
