@@ -20,18 +20,29 @@ from PIL import Image
 #     city = models.CharField(max_length=100)
 #     location = PlainLocationField(based_fields=['city'], zoom=7)
 
+class EstateManager(models.Manager):
+    def get_highest_bidder(auction):
+        biddings=auction.bids.all()
+        highest=biddings.first()
+        for bidding in biddings:
+            if bidding.bid_amount > highest.bid_amount:
+                highest=bidding
+        
+        return highest
+
 class Estate(models.Model):
     id= models.UUIDField(
         auto_created=True,
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
+    query=EstateManager()
+    objects=models.Manager()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="estate")
     title=models.CharField(max_length=30,blank=False,null=True)
     description = models.CharField(max_length=200, blank=False,null=True)
 
     #location = models.OneToOneField(Place, on_delete=models.CASCADE)
-    
     upvotes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="likes", blank=True)
     downvotes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="dislikes", blank=True)
     favourite = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="favourites", blank=True)
@@ -48,6 +59,21 @@ class Estate(models.Model):
     class Meta:
         ordering = ["-pub_date"]
 
+    def get_highest_bidder(self):
+        return Estate.query.get_highest_bidder(self)
+
+    def is_new_bid_okay(self,bidder,bid_amount):
+        if self.user == bidder:
+            return False
+        highest_bidding=self.get_highest_bidder()
+        
+        if(highest_bidding.user==bidder):
+            return False
+        
+        if(highest_bidding.bid_amount<=bid_amount):
+            return False
+        
+        return True
     def __str__(self):
         return self.user.username +" auction %s" %str(self.id)[0:4]
 

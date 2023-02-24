@@ -261,6 +261,8 @@ class BidCreateView(LoginRequiredMixin,View):
         bid_amount=request.POST.get("bid_amount")
         bid=BidForm(bid_amount)
         if(bid.is_valid()):
+            if(estate_.is_new_bid_okay(bidder=self.request.user,bid_amount=bid_amount) is False):
+                return JsonResponse({"form": html,"err":"Bid creation Error"}) 
             bid.save(commit=False)
             bid.estate=estate_
             bid.user=self.request.user

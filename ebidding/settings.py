@@ -92,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOCATION_FIELD = {
     'provider.google.api': '//maps.google.com/maps/api/js?sensor=false',
-    'provider.google.api_key': 'apikey xaina cause no debit account hahahahahaha',
+    'provider.google.api_key': 'apikey xaina cause no debit account ',
     'provider.google.api_libraries': '',
     'provider.google.map.type': 'ROADMAP',
 }
