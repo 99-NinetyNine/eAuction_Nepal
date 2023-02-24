@@ -4,6 +4,7 @@
 {% block title %} | Home{% endblock title %}
 
 {% block content %}
+
 {% for auction,is_liked ,is_disliked,is_favourite in auctions %}
 
 {% include "auction/detail/top_part.html" %}
@@ -16,5 +17,7 @@
 {% endfor %}
 
 <hr>
+
+
 
 {% endblock content %}
