@@ -14,7 +14,7 @@
 
 
 
-<form id="bidForm"  class="{{ estate.id }}" style="display:none;" action='.' method="POST">
+<form id="bidForm"  class="{{ auction.id }}" style="display:none;" action='.' method="POST">
 {% csrf_token %}
 {{ bid_form | crispy }}
 

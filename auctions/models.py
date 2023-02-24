@@ -20,7 +20,7 @@ from PIL import Image
 #     city = models.CharField(max_length=100)
 #     location = PlainLocationField(based_fields=['city'], zoom=7)
 
-class EstateManager(models.Manager):
+class AuctionManager(models.Manager):
     def get_highest_bidder(auction):
         biddings=auction.bids.all()
         highest=biddings.first()
@@ -30,15 +30,15 @@ class EstateManager(models.Manager):
         
         return highest
 
-class Estate(models.Model):
+class Auction(models.Model):
     id= models.UUIDField(
         auto_created=True,
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    query=EstateManager()
+    query=AuctionManager()
     objects=models.Manager()
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="estate")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="auction")
     title=models.CharField(max_length=30,blank=False,null=True)
     description = models.CharField(max_length=200, blank=False,null=True)
 
@@ -60,7 +60,7 @@ class Estate(models.Model):
         ordering = ["-pub_date"]
 
     def get_highest_bidder(self):
-        return Estate.query.get_highest_bidder(self)
+        return Auction.query.get_highest_bidder(self)
 
     def is_new_bid_okay(self,bidder,bid_amount):
         if self.user == bidder:
@@ -89,15 +89,15 @@ class Estate(models.Model):
         return True
 
 
-class EstateImage(models.Model):
+class AuctionImage(models.Model):
     id= models.UUIDField(
         auto_created=True,
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    estate = models.ForeignKey(Estate, on_delete=models.CASCADE, related_name="media")
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="media")
     about = models.CharField(max_length=50, blank=True,null=True)
-    photo = models.FileField(upload_to="EstateImages/", blank=True, null=True)
+    photo = models.FileField(upload_to="AuctionImages/", blank=True, null=True)
     is_photo = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
@@ -112,8 +112,8 @@ class Bids(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="bid_list")
-    estate=models.ForeignKey(Estate, on_delete=models.CASCADE,related_name="bids")
+    bidder=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="bid_list")
+    auction=models.ForeignKey(Auction, on_delete=models.CASCADE,related_name="bids")
     bid_amount=models.FloatField(default=0)
 
     def get_absolute_url(self):
@@ -125,7 +125,7 @@ class Bids(models.Model):
         pass
         # constraints = [
         #     models.CheckConstraint(
-        #         check=(models.Q(bid_amount__gte=estate.price_min_value) & models.Q(bid_amount__lte<=estate.price_max_value)), name='bid_range'),
+        #         check=(models.Q(bid_amount__gte=auction.price_min_value) & models.Q(bid_amount__lte<=auction.price_max_value)), name='bid_range'),
         #     models.CheckConstraint(
         #         check=(models.Q(estate__.has_expired)),name='not_expired'),
         # ]
@@ -135,9 +135,9 @@ class Bids(models.Model):
     #             raise ValidationError({
     #                 'bid_amount': ValidationError('Out of range', code='invalid'),
     #             })
-    #         if (self.estate.has_expired()):
+    #         if (self.auction.has_expired()):
     #             raise ValidationError({
-    #                 'estate': ValidationError('Expired auction.', code='invalid'),
+    #                 'auction': ValidationError('Expired auction.', code='invalid'),
     #             })
 
 
@@ -148,14 +148,14 @@ class Notification(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
-    user = models.ForeignKey(
+    receiver = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="bids_alert", on_delete=models.CASCADE, default=None
     )
     other_user= models.ForeignKey(
         settings.AUTH_USER_MODEL,on_delete=models.CASCADE,blank=True,null=True, default=None
     )
 
-    estate = models.ForeignKey(Estate, on_delete=models.CASCADE, null=True,blank=True)
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, null=True,blank=True)
     bid=models.ForeignKey(Bids,on_delete=models.CASCADE,null=True,blank=True)
 
     created=models.DateTimeField(default=timezone.now)
@@ -166,11 +166,11 @@ class Notification(models.Model):
     to check like:
         is_like
     
-    to check estate:
-        (estate and not bid)
+    to check auction:
+        (auction and not bid)
     
     to check bid:
-        (bid and not estate)
+        (bid and not auction)
     
     a little optimization than:
 
@@ -185,7 +185,7 @@ class Notification(models.Model):
         msg=""
         if(self.is_like):
             msg="like"
-        elif(self.estate and not self.bid):
+        elif(self.auction and not self.bid):
             msg="auction"
         elif(self.bid):
             msg="bid"

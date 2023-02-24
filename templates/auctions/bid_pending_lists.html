@@ -7,10 +7,10 @@
   {% for bid in bids %}
   <div id="bidRow{{ bid.id}}">
   <div class="list-group-item list-group-item-action flex-column align-items-start"> 
-  <a class="mb-1" href="{{ bid.estate.get_absolute_url }}" ">
+  <a class="mb-1" href="{{ bid.auction.get_absolute_url }}" ">
     <div class="d-flex w-300 justify-content-left">
       <h5 class="mb-1">
-        {{ bid.estate.title }}
+        {{ bid.auction.title }}
       <small>
         {% with x=bid.bid_amount %}
             {% if x <= 1000000 %}
@@ -27,12 +27,12 @@
 
 
     <p class="mb-1">
-      {{ bid.estate.description|truncatechars:20 }}
+      {{ bid.auction.description|truncatechars:20 }}
     </p>
   </a>
 
     <p class="mb-1">
-    <a href="{{ bid.estate.get_absolute_url }}">
+    <a href="{{ bid.auction.get_absolute_url }}">
     <small>Edit</small>
     </a>
 

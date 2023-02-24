@@ -31,7 +31,7 @@ from django.views.generic import (
 )
 
 
-from .models import Estate,EstateImage,Bids,Notification
+from .models import Auction,AuctionImage,Bids,Notification
 from .utils import (
     get_auction_query_set,
     is_ajax,
@@ -40,7 +40,7 @@ from .utils import (
 )
 
 from .forms import (
-    EstateForm,
+    AuctionForm,
     BidForm,
 
 )
@@ -51,7 +51,7 @@ INDEX_CONTEXT_NAME="auctions"
 
 
 class HomeView(LoginRequiredMixin,ListView):
-    model=Estate
+    model=Auction
     template_name='_index.html'
     context_object_name=INDEX_CONTEXT_NAME
 
@@ -68,7 +68,7 @@ class HomeView(LoginRequiredMixin,ListView):
     
 
 class AuctionCreateView(LoginRequiredMixin,CreateView):
-    model=Estate
+    model=Auction
     fields=[
         'title',
         'description',
@@ -89,21 +89,21 @@ class AuctionCreateView(LoginRequiredMixin,CreateView):
 def AuctionCreate(request):
     
     ImageFormset = modelformset_factory(
-        EstateImage, fields=("about", "photo",),
+        AuctionImage, fields=("about", "photo",),
     )
     if request.method == "POST":
-        form = EstateForm(request.POST)
+        form = AuctionForm(request.POST)
         formset = ImageFormset(request.POST or None, request.FILES)
         if form.is_valid() and formset.is_valid():
-            estate = form.save(commit=False)
-            estate.user = request.user
-            estate.save()
+            auction = form.save(commit=False)
+            auction.user = request.user
+            auction.save()
             no_of_formset = 0
             no_of_error = 0
             for f in formset:
                 try:
-                    estateimage = EstateImage(
-                        estate=estate,
+                    estateimage = AuctionImage(
+                        auction=auction,
                         about=f.cleaned_data.get("about"),
                         photo=f.cleaned_data.get("photo"),
                     )
@@ -118,7 +118,7 @@ def AuctionCreate(request):
                 no_of_formset += 1
             
             if no_of_formset == no_of_error:
-                estate.delete()
+                auction.delete()
                 messages.success(request, "Post has not created.")
                 return redirect("create_auction")
 
@@ -126,50 +126,50 @@ def AuctionCreate(request):
             return redirect("home")
 
     else:
-        form=EstateForm()
-        formset = ImageFormset(queryset=EstateImage.objects.none())
+        form=AuctionForm()
+        formset = ImageFormset(queryset=AuctionImage.objects.none())
     return render(request, "auctions/auction_create_form.html", {"estate_form":form, "formset": formset,})
 
 def AuctionEdit(request, pk):
-    estate = get_object_or_404(Estate, id=pk)
-    if estate.user != request.user:
+    auction = get_object_or_404(Auction, id=pk)
+    if auction.user != request.user:
         raise Http404()
     ImageFormset = modelformset_factory(
-        EstateImage, fields=("about", "photo",), extra=4, max_num=4
+        AuctionImage, fields=("about", "photo",), extra=4, max_num=4
     )
     if request.method == "POST":
-        form = EstateForm(request.POST or None, instance=estate)
+        form = AuctionForm(request.POST or None, instance=auction)
         formset = ImageFormset(request.POST or None, request.FILES or None)
         if form.is_valid() and formset.is_valid():
             form.save()
-            data = EstateImage.objects.filter(estate=estate)
+            data = AuctionImage.objects.filter(auction=auction)
             for index, f in enumerate(formset):
                 if f.cleaned_data:
                     if f.cleaned_data["id"] is None:
-                        photo = EstateImage(
-                            estate=estate, photo=f.cleaned_data.get("photo")
+                        photo = AuctionImage(
+                            auction=auction, photo=f.cleaned_data.get("photo")
                         )
                         photo.save()
                     elif f.cleaned_data["photo"] is False:
-                        photo = EstateImage.objects.get(
+                        photo = AuctionImage.objects.get(
                             id=request.POST.get("form-" + str(index) + "-id")
                         )
                         photo.delete()
                     else:
-                        photo = EstateImage(
-                            estate=estate, photo=f.cleaned_data.get("photo")
+                        photo = AuctionImage(
+                            auction=auction, photo=f.cleaned_data.get("photo")
                         )
-                        d = EstateImage.objects.get(id=data[index].id)
+                        d = AuctionImage.objects.get(id=data[index].id)
                         d.image = photo.photo
                         d.save()
             messages.success(request, "Post has been successfully updated!")
-            return HttpResponseRedirect(estate.get_absolute_url())
+            return HttpResponseRedirect(auction.get_absolute_url())
     else:
-        form = EstateForm(instance=estate)
-        formset = ImageFormset(queryset=EstateImage.objects.filter(estate=estate))
+        form = AuctionForm(instance=auction)
+        formset = ImageFormset(queryset=AuctionImage.objects.filter(auction=auction))
     context = {
         "form": form,
-        "estate": estate,
+        "auction": auction,
         "formset": formset,
     }
     return render(request, "auctions/auction_update_form.html", context)
@@ -177,7 +177,7 @@ def AuctionEdit(request, pk):
 
     
 class AuctionEditView(UpdateView):
-    model=Estate
+    model=Auction
     fields=[
         'title',
         'description',
@@ -193,14 +193,14 @@ class AuctionEditView(UpdateView):
 
     
 class AuctionDeleteView(DeleteView):
-    model=Estate
+    model=Auction
     context_object_name="auction"
     template_name='auctions/auction_delete_form.html'
 
     def get_success_url(self):
         return reverse_lazy('profile_view',args=[self.request.user.id])
 
-class EstateDetailView(View):
+class AuctionDetailView(View):
     context_object_name="single_auction"
     template_name='auctions/auction_detail.html'
     pk=None
@@ -213,7 +213,7 @@ class EstateDetailView(View):
     def get_object(self):
         self.pk=self.kwargs.get('pk')
         print(self.pk)
-        self.auction=get_object_or_404(Estate,id=self.pk)
+        self.auction=get_object_or_404(Auction,id=self.pk)
         return get_auction_query_set(self.auction, self.request,True)
     def get_bid_form(self):
         db_entry=self.auction.bids.filter(user=self.request.user)
@@ -249,7 +249,7 @@ class EstateDetailView(View):
     
 class ImageLinkView(DetailView):
 
-    model=EstateImage
+    model=AuctionImage
     template_name='auctions/auction_image_detail.html'
 
     
@@ -257,14 +257,14 @@ class ImageLinkView(DetailView):
 class BidCreateView(LoginRequiredMixin,View):   
     template_name="auctions/bid_create.html"
     def post(self,request,*args,**kwargs):
-        estate_ = get_object_or_404(Estate, id=request.POST.get("id"))
+        estate_ = get_object_or_404(Auction, id=request.POST.get("id"))
         bid_amount=request.POST.get("bid_amount")
         bid=BidForm(bid_amount)
         if(bid.is_valid()):
             if(estate_.is_new_bid_okay(bidder=self.request.user,bid_amount=bid_amount) is False):
                 return JsonResponse({"form": html,"err":"Bid creation Error"}) 
             bid.save(commit=False)
-            bid.estate=estate_
+            bid.auction=estate_
             bid.user=self.request.user
             bid.save()
         
@@ -288,7 +288,7 @@ class BidUpdateView(View):
         bid = get_object_or_404(Bids, id=request.POST.get("id"))
         bid_amount=request.POST.get("bid_amount")
         
-        if(range_check(bid_amount,bid.estate.price_min_value,bid.estate.price_max_value)):
+        if(range_check(bid_amount,bid.auction.price_min_value,bid.auction.price_max_value)):
             if(bid.user is self.request.user):
                 bid.update(bid_amount=bid_amount)
         
@@ -368,7 +368,7 @@ class ListAlertsView(LoginRequiredMixin,ListView):
         """
         list of ["q==notification query","msg==customized"]
         """
-        query_set=Notification.objects.filter(user=self.request.user)
+        query_set=Notification.objects.filter(receiver=self.request.user)
         
         res=[]
         for q in query_set:
@@ -383,14 +383,14 @@ class ListAlertsView(LoginRequiredMixin,ListView):
             if(q.is_like):
                 is_like=True
                 username_list = ""
-                estate=q.estate
-                num_of_likes=estate.upvotes.all().count()
+                auction=q.auction
+                num_of_likes=auction.upvotes.all().count()
                 if(num_of_likes>0 and num_of_likes%3 == 0):
                 
-                    for voter in estate.upvotes.all()[0:2]:
+                    for voter in auction.upvotes.all()[0:2]:
                         if not notes_user == self.request.user:
                             username_list += notes_user.username + ","
-                    remaining_likes = estate.upvotes.all().count() - 2
+                    remaining_likes = auction.upvotes.all().count() - 2
                     msg = (
                         username_list
                         + " and "
@@ -398,22 +398,22 @@ class ListAlertsView(LoginRequiredMixin,ListView):
                         + " others upvoted your auction!"
                     )
                 else:
-                    if(estate.user != self.request.user ):
+                    if(auction.user != self.request.user ):
                         msg = q.user.username + " liked " + " your auction!"
 
 
             
-            elif(q.estate and not q.bid):
+            elif(q.auction and not q.bid):
                 """auction notice"""
                 is_auction_notice=True
-                msg=q.estate.user.username+"posted an auction. "
+                msg=q.auction.user.username+"posted an auction. "
 
 
-            elif(q.bid and q.estate):
+            elif(q.bid and q.auction):
                 """is_bid_notice"""
 
                 is_bid_notice=True
-                msg=q.other_user.username +" has put bid on your auction "+q.estate.title
+                msg=q.other_user.username +" has put bid on your auction "+q.auction.title
             
             t=[q,is_like,is_auction_notice,is_bid_notice,msg,is_checked]
             res.append(t)
@@ -426,25 +426,25 @@ class BidHandleView(LoginRequiredMixin,View):
         intent=request.POST.get('intent')
         id_=request.POST.get('id')
         amount=request.POST.get('bid_amount')
-        estate=get_object_or_404(Estate,id=id_)
+        auction=get_object_or_404(Auction,id=id_)
 
         has_bid=True
 
-        if(estate.user== request.user):
+        if(auction.user== request.user):
             return self.handle_silently();
         
         bid_html=None
         
         
 
-        db_entry=Bids.objects.filter(estate=estate,user=request.user)
+        db_entry=Bids.objects.filter(auction=auction,user=request.user)
         if(intent== '0'):
             #add bid
             if(db_entry.exists()):
                 print("already")
                 self.handle_silently()
             else:
-                db_entry=Bids.objects.create(estate=estate,user=request.user,bid_amount=amount)
+                db_entry=Bids.objects.create(auction=auction,user=request.user,bid_amount=amount)
                 print("new")
                 
         else:
@@ -466,15 +466,15 @@ class BidHandleView(LoginRequiredMixin,View):
                 print("del")
         
         if(intent=="0" or intent=="1"):
-            bid_list=get_bids_by_order(estate)
+            bid_list=get_bids_by_order(auction)
             bid_html=render_to_string('auctions/bid_list.html',context={'bids':bid_list},request=request)
 
         bid_form=BidForm(initial={'bid_amount':amount})
         context={
-            "estate":estate,
+            "auction":auction,
             "has_bid":has_bid,
             "bid_form":bid_form,
-            "user":estate.user,
+            "user":auction.user,
         }
         
         html=render_to_string('auctions/bid_menu.html',context=context,request=request)
@@ -527,7 +527,7 @@ class ListHandleView(LoginRequiredMixin,View):
 
 @login_required
 def LikeAuction(request):
-    auction = get_object_or_404(Estate, id=request.POST.get("id"))
+    auction = get_object_or_404(Auction, id=request.POST.get("id"))
     is_liked = False
     is_disliked=False
 
@@ -556,7 +556,7 @@ def LikeAuction(request):
 
 
     context = {
-        "estate": auction,
+        "auction": auction,
         "is_liked": is_liked,
         "is_disliked":is_disliked,
         
@@ -578,17 +578,17 @@ def LikeAuction(request):
 
 
 def FavouriteAuction(request):
-    estate = get_object_or_404(Estate, id=request.POST.get("id"))
+    auction = get_object_or_404(Auction, id=request.POST.get("id"))
     is_fav = False
     
 
-    if estate.favourite.filter(id=request.user.id).exists():
-        estate.favourite.remove(request.user)
+    if auction.favourite.filter(id=request.user.id).exists():
+        auction.favourite.remove(request.user)
     else:
-        estate.favourite.add(request.user)
+        auction.favourite.add(request.user)
         is_fav = True
     context = {
-        "estate": estate,
+        "auction": auction,
         "is_favourite": is_fav,
     }
     if is_ajax(request):

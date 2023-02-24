@@ -6,7 +6,7 @@ from django.test import (
 import operator
 
 from .models import (
-    Estate,
+    Auction,
     Bids,
     Notification,
 )
@@ -29,9 +29,9 @@ class RatingPriorityTest(TestCase):
         self.user2=BidUser.objects.create(username="user2")
         self.user3=BidUser.objects.create(username="user3")
 
-        self.estate=Estate.objects.create(title="test estate",description="test desc",user=self.user1,price_min_value=2,price_max_value=40)
-        self.estate.bids.create(user=self.user2,bid_amount=15)
-        self.estate.bids.create(user=self.user3,bid_amount=5)
+        self.auction=Auction.objects.create(title="test auction",description="test desc",user=self.user1,price_min_value=2,price_max_value=40)
+        self.auction.bids.create(user=self.user2,bid_amount=15)
+        self.auction.bids.create(user=self.user3,bid_amount=5)
     
     #py manage.py test auctions.RatingPriorityTest
     def test_competition(self):
@@ -40,7 +40,7 @@ class RatingPriorityTest(TestCase):
         Rating.objects.create(from_user=self.user1,to_user=self.user3,rating='1')
         from django.db.models import Avg
 
-        qs=self.estate.bids.annotate(ratings=Avg('user__to__rating'))
+        qs=self.auction.bids.annotate(ratings=Avg('user__to__rating'))
         qs.order_by('bid_amount','-ratings')
         
         for k in qs:

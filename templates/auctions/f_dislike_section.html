@@ -3,14 +3,14 @@
 
 {% if is_disliked and not is_liked %}
 {% comment %} filled thumb down {% endcomment %}
-<button type="submit" class="btn " id="dislike" name="auction_id" value="{{ estate.id }}">
+<button type="submit" class="btn " id="dislike" name="auction_id" value="{{ auction.id }}">
 <i class="fa fa-thumbs-down" style="font-size:36px;"></i>
 </button>
 
 
 {% elif not is_disliked or is_liked %} 
 {% comment %} naked thumb down {% endcomment %}
-<button type="submit" class="btn " id="dislike" name="auction_id" value="{{ estate.id }}">
+<button type="submit" class="btn " id="dislike" name="auction_id" value="{{ auction.id }}">
 <i class="fa fa-thumbs-o-down" style="font-size:36px;"></i>
 </button>
 

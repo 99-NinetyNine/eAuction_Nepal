@@ -17,7 +17,7 @@ from .forms import (
 )
 
 from .models import BidUser,Rating
-from auctions.models import Estate
+from auctions.models import Auction
 from auctions.utils import (
     get_auction_query_set,
     is_ajax,
@@ -38,7 +38,7 @@ class ProfileDetailView(generic.ListView):
     def get_queryset(self):
         pk = self.kwargs.get("pk")
         self.dest_user=get_object_or_404(BidUser,id=pk)
-        estates=Estate.objects.filter(user=self.dest_user)
+        estates=Auction.objects.filter(user=self.dest_user)
         return get_auction_query_set(estates,self.request)
 
     def get_context_data(self,**kwargs):

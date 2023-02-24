@@ -9,7 +9,7 @@ urlpatterns = [
     path('edit/ads/<uuid:pk>',views.AuctionEdit,name='edit_auction'),
     path('delete/ads/<uuid:pk>',views.AuctionDeleteView.as_view(),name='delete_auction'),
 
-    path('auction/<uuid:pk>',views.EstateDetailView.as_view(),name='auction_detail'),
+    path('auction/<uuid:pk>',views.AuctionDetailView.as_view(),name='auction_detail'),
     path('auction/images/<uuid:pk>',views.ImageLinkView.as_view(),name='image_link'),
 
     

@@ -1,8 +1,8 @@
 from django.conf import settings
 
 from .models import (
-    Estate,
-    EstateImage,
+    Auction,
+    AuctionImage,
     Bids,
     Notification,
 )
@@ -25,7 +25,7 @@ from django.utils import timezone
 #index_view_done = django.dispatch.Signal(providing_args=["request",])
 
 
-@receiver(m2m_changed, sender=Estate.upvotes.through)
+@receiver(m2m_changed, sender=Auction.upvotes.through)
 def like(sender, instance, action, pk_set, **kwargs):
     """
     Signal created when user y likes the auction of user x.
@@ -33,7 +33,7 @@ def like(sender, instance, action, pk_set, **kwargs):
         . put text in DB, get faster data
         . or process msgs later but get it slow(better since ajax is there!!)
     
-    Note this is for (Estate.upvotes.through) only. Estate.downvotes.through not done(not needed).
+    Note this is for (Auction.upvotes.through) only. Auction.downvotes.through not done(not needed).
     """
     if instance:
         msg=""
@@ -44,7 +44,7 @@ def like(sender, instance, action, pk_set, **kwargs):
         
         x = instance.user 
         
-        db_entry=x.bids_alert.filter(user=x,other_user=y,estate=instance, is_like=True)
+        db_entry=x.bids_alert.filter(user=x,other_user=y,auction=instance, is_like=True)
         if action == "post_add":
             if db_entry.exists():
                 num_of_likes=instance.upvotes.all().count()
@@ -66,9 +66,9 @@ def like(sender, instance, action, pk_set, **kwargs):
             elif not x == y:  # avoid sailesh liked sailesh post.
                 msg = y.username + " liked " + x.username + " post!"
                 Notification.objects.create(
-                    user=x,
+                    receiver=x,
                     other_user=y,
-                    estate=instance,
+                    auction=instance,
                     is_like=True,
                 )
 
@@ -78,7 +78,7 @@ def like(sender, instance, action, pk_set, **kwargs):
 
         print(msg)
 
-@receiver(post_save, sender=Estate)
+@receiver(post_save, sender=Auction)
 def auction_created_alert(sender, instance,update_fields,**kwargs):
     """
     user x created an auction.
@@ -97,16 +97,16 @@ def auction_created_alert(sender, instance,update_fields,**kwargs):
             
             for u in user_lists:
                 Notification.objects.create(
-                    user=u,
+                    receiver=u,
                     other_user=None,
-                    estate=instance,
+                    auction=instance,
                     bid=None,
                     is_like=False
                 )
             print("user x created an auction Brodcast to [user_lists] users")
 
 
-@receiver(post_delete, sender=Estate)
+@receiver(post_delete, sender=Auction)
 def auction_delete_alert(sender, instance, **kwargs):
     if(instance):
         x=instance.user
@@ -114,9 +114,9 @@ def auction_delete_alert(sender, instance, **kwargs):
 
         for u in user_lists:
             Notification.objects.get(
-                    user=u,
+                    receiver=u,
                     other_user=None,
-                    estate=instance,
+                    auction=instance,
                     bid=None,
                     is_like=False
                 ).delete()
@@ -139,9 +139,9 @@ def get_users_auction(user_not_needed):
 def bids_created_alert(sender, instance, **kwargs):
     if instance.user:
         
-        x=instance.estate.user
+        x=instance.auction.user
         y=instance.user
-        A=instance.estate
+        A=instance.auction
 
         if not x == y:
             """
@@ -151,9 +151,9 @@ def bids_created_alert(sender, instance, **kwargs):
                 other_user=y, bid=instance.id or None, is_like=False
             ).exists():
                 Notification.objects.create(
-                    user=x,
+                    receiver=x,
                     other_user=y,
-                    estate=A,
+                    auction=A,
                     bid=instance,
                     is_like=False,                    
                 )
@@ -166,7 +166,7 @@ def bids_removed_alert(sender, instance, **kwargs):
         remove that notifin which says
         x posted bid on auction y
         
-        instance.estate.user.bid_list.filter(user_by=instance.user,bid=instance.id or None,is_like=False).delete()
+        instance.auction.user.bid_list.filter(user_by=instance.user,bid=instance.id or None,is_like=False).delete()
         """
 
         

@@ -1,5 +1,5 @@
 from .models import (
-    Estate,
+    Auction,
     Bids,
 )
 
@@ -34,7 +34,7 @@ def get_auction_query_set(query_set,request,single_item=False):
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
-def get_bids_by_order(estate):
+def get_bids_by_order(auction):
     from django.db.models import Avg
-    qs=estate.bids.annotate(ratings=Avg('user__to__rating')).order_by('bid_amount','-ratings')
+    qs=auction.bids.annotate(ratings=Avg('user__to__rating')).order_by('bid_amount','-ratings')
     return qs

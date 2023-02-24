@@ -8,12 +8,12 @@
   
   {% for notice,is_liked,is_auction,is_bid_notice,msg,is_checked in notifications %}
   
-  <a href={% if is_liked or is_auction %}"{{ notice.estate.get_absolute_url }}" {% elif is_bid_notice %}"{{ notice.estate.get_absolute_url }}"{% endif %}
+  <a href={% if is_liked or is_auction %}"{{ notice.auction.get_absolute_url }}" {% elif is_bid_notice %}"{{ notice.auction.get_absolute_url }}"{% endif %}
      id="nId{{ notice.id }}"
   class="list-group-item list-group-item-action flex-column align-items-start n_seen {% if not is_checked %}active{% endif %}" value="{{ notice.id }}">
     <div class="d-flex w-300 justify-content-left">
       <h5 class="mb-1">
-        {{ notice.user.username }}
+        {{ notice.receiver.username }}
       <small>{{ notice.created| naturaltime }}</small>
 
       <div class="btn-group dropleft">
@@ -33,7 +33,7 @@
     
     <h5 class="mb-1">
         {% if not is_bid_notice %}
-        {{ notice.estate.title }}
+        {{ notice.auction.title }}
         {% else %}
         {{ notice.bid.user.username }}
         {% endif %} 
@@ -47,7 +47,7 @@
 
     <p class="mb-1">
     {% if not is_bid_notice and not is_like %}
-    {{ notice.estate.description }}
+    {{ notice.auction.description }}
     {% endif %}
     </p>
 
@@ -55,7 +55,7 @@
 
     {% if is_auction_notice %}
     {% comment %} put location {% endcomment %}
-    <small>Expires: {{ notice.estate.expiry_date| naturaltime}}</small>
+    <small>Expires: {{ notice.auction.expiry_date| naturaltime}}</small>
   
     {% endif %}
 

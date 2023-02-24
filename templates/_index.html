@@ -4,7 +4,7 @@
 {% block title %}Ebid | Home{% endblock title %}
 
 {% block content %}
-{% for estate,is_liked ,is_disliked,is_favourite in auctions %}
+{% for auction,is_liked ,is_disliked,is_favourite in auctions %}
 
 {% include "auctions/auction_top_part.html" %}
 <br>

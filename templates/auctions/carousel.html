@@ -1,19 +1,19 @@
 <div class="container">
 
-<div id="{{ estate.id }}" class="carousel slide" data-ride="carousel">
-{% if estate.media.all.count > 1 %}
+<div id="{{ auction.id }}" class="carousel slide" data-ride="carousel">
+{% if auction.media.all.count > 1 %}
   <ol class="carousel-indicators">
-  {% for num in estate.media.all %}
+  {% for num in auction.media.all %}
   {% if forloop.counter0 == 0 %}
-    <li data-target="#{{ estate.id }}" data-slide-to="0" class="active"></li>
+    <li data-target="#{{ auction.id }}" data-slide-to="0" class="active"></li>
    {% else %}
-    <li data-target="#{{ estate.id }}" data-slide-to="{{ forloop.counter0 }}"></li>
+    <li data-target="#{{ auction.id }}" data-slide-to="{{ forloop.counter0 }}"></li>
   {% endif %}
   {% endfor %}
   </ol>
 {% endif %}
 <div class="carousel-inner">
-{% for media in estate.media.all %}
+{% for media in auction.media.all %}
 {% if forloop.counter0 == 0 %}
     <div class="carousel-item active">
 {% else %}
@@ -49,12 +49,12 @@
 
 {% endfor %}
 </div>
-{% if not estate.media.all.count == 1 %}
-  <a class="carousel-control-prev" href="#{{ estate.id }}" role="button" data-slide="prev">
+{% if not auction.media.all.count == 1 %}
+  <a class="carousel-control-prev" href="#{{ auction.id }}" role="button" data-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     <span class="sr-only">Previous</span>
   </a>
-  <a class="carousel-control-next" href="#{{ estate.id }}" role="button" data-slide="next">
+  <a class="carousel-control-next" href="#{{ auction.id }}" role="button" data-slide="next">
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
     <span class="sr-only">Next</span>
   </a>

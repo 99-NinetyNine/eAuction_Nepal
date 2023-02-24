@@ -1,14 +1,14 @@
 from django import forms 
 from .models import (
-    Estate,
-    EstateImage,
+    Auction,
+    AuctionImage,
     Bids,
 )
 
 
-class EstateForm(forms.ModelForm):
+class AuctionForm(forms.ModelForm):
     class Meta:
-        model = Estate
+        model = Auction
         fields = [
             "title",
             "description",
