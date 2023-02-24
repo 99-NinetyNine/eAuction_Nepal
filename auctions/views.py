@@ -30,19 +30,14 @@ from django.views.generic import (
     DeleteView,
 )
 
+from mechanism.auction import Auction,AuctionImage
+from mechanism.notification import Notification
+from mechanism.bidding import Bid
 
-from .models import Auction,AuctionImage,Bids,Notification
-from .utils import (
-    get_auction_query_set,
-    is_ajax,
-    get_bids_by_order,
-    
-)
 
+from bidding.forms import BidForm
 from .forms import (
     AuctionForm,
-    BidForm,
-
 )
 
 INDEX_CONTEXT_NAME="auctions"
@@ -56,35 +51,13 @@ class HomeView(LoginRequiredMixin,ListView):
     context_object_name=INDEX_CONTEXT_NAME
 
     def get_queryset(self,**kwargs):
-        query_set=super().get_queryset()
-        return get_auction_query_set(query_set,self.request)
+        return Auction.query.get_serialized_query_set(Auction.objects.all(),self.request)
     
     def get_context_data(self,**kwargs):
         context=super().get_context_data(**kwargs)
         return context
         
     
-
-    
-
-class AuctionCreateView(LoginRequiredMixin,CreateView):
-    model=Auction
-    fields=[
-        'title',
-        'description',
-        'hide_post',     
-        'price_min_value',
-        'price_max_value',
-
-    ]
-    context_object_name="auction"
-
-    template_name='auctions/auction_create_form.html'
-    login_url='login'
-
-    def form_valid(self,form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
 
 def AuctionCreate(request):
     
@@ -102,17 +75,17 @@ def AuctionCreate(request):
             no_of_error = 0
             for f in formset:
                 try:
-                    estateimage = AuctionImage(
+                    auction_image = AuctionImage(
                         auction=auction,
                         about=f.cleaned_data.get("about"),
                         photo=f.cleaned_data.get("photo"),
                     )
                     
-                    estateimage.save()
+                    auction_image.save()
                     
                 except Exception as e:
                     print("error @ formset",e)
-                    if not estateimage:
+                    if not auction_image:
                         no_of_error += 1
 
                 no_of_formset += 1
@@ -128,7 +101,7 @@ def AuctionCreate(request):
     else:
         form=AuctionForm()
         formset = ImageFormset(queryset=AuctionImage.objects.none())
-    return render(request, "auctions/auction_create_form.html", {"estate_form":form, "formset": formset,})
+    return render(request, "auction/form/create.html", {"form":form, "formset": formset,})
 
 def AuctionEdit(request, pk):
     auction = get_object_or_404(Auction, id=pk)
@@ -172,37 +145,21 @@ def AuctionEdit(request, pk):
         "auction": auction,
         "formset": formset,
     }
-    return render(request, "auctions/auction_update_form.html", context)
+    return render(request, "auction/form/edit.html", context)
 
-
-    
-class AuctionEditView(UpdateView):
-    model=Auction
-    fields=[
-        'title',
-        'description',
-        'hide_post',     
-        'price_min_value',
-        'price_max_value',
-
-
-    ]
-    context_object_name="auction"
-
-    template_name='auctions/auction_update_form.html'
 
     
 class AuctionDeleteView(DeleteView):
     model=Auction
     context_object_name="auction"
-    template_name='auctions/auction_delete_form.html'
+    template_name='auction/auction_delete_form.html'
 
     def get_success_url(self):
         return reverse_lazy('profile_view',args=[self.request.user.id])
 
 class AuctionDetailView(View):
     context_object_name="single_auction"
-    template_name='auctions/auction_detail.html'
+    template_name='auction/detail.html'
     pk=None
     auction=None
     def get(self,*args,**kwargs):
@@ -214,9 +171,9 @@ class AuctionDetailView(View):
         self.pk=self.kwargs.get('pk')
         print(self.pk)
         self.auction=get_object_or_404(Auction,id=self.pk)
-        return get_auction_query_set(self.auction, self.request,True)
+        return Auction.query.get_serialized_query_set(self.auction, self.request,True)
     def get_bid_form(self):
-        db_entry=self.auction.bids.filter(user=self.request.user)
+        db_entry=self.auction.bids.filter(bidder=self.request.user)
         has_bid=False
         form=None
         if(db_entry.exists()):
@@ -231,7 +188,7 @@ class AuctionDetailView(View):
         context={}
         context[self.context_object_name]=self.get_object()
         
-        bids=get_bids_by_order(self.auction)
+        bids=self.auction.get_bids_by_order()
         
         context["detail_view"]=True
         context["bids"]=bids
@@ -250,281 +207,10 @@ class AuctionDetailView(View):
 class ImageLinkView(DetailView):
 
     model=AuctionImage
-    template_name='auctions/auction_image_detail.html'
-
-    
-#bids
-class BidCreateView(LoginRequiredMixin,View):   
-    template_name="auctions/bid_create.html"
-    def post(self,request,*args,**kwargs):
-        estate_ = get_object_or_404(Auction, id=request.POST.get("id"))
-        bid_amount=request.POST.get("bid_amount")
-        bid=BidForm(bid_amount)
-        if(bid.is_valid()):
-            if(estate_.is_new_bid_okay(bidder=self.request.user,bid_amount=bid_amount) is False):
-                return JsonResponse({"form": html,"err":"Bid creation Error"}) 
-            bid.save(commit=False)
-            bid.auction=estate_
-            bid.user=self.request.user
-            bid.save()
-        
-        context = {
-        "bid_form":bid,
-        
-        }
-        
-        if is_ajax(self.request):
-            html = render_to_string(self.template_name, context, request=request)
-            return JsonResponse({"form": html})
-    
-
-
-
-
-class BidUpdateView(View):
-    template_name='auctions/bid_update_form.html'
-    
-    def post(self,request,*args,**kwargs):
-        bid = get_object_or_404(Bids, id=request.POST.get("id"))
-        bid_amount=request.POST.get("bid_amount")
-        
-        if(range_check(bid_amount,bid.auction.price_min_value,bid.auction.price_max_value)):
-            if(bid.user is self.request.user):
-                bid.update(bid_amount=bid_amount)
-        
-        context = {
-        "bid_form":bid,        
-        }
-        
-        if is_ajax(self.request):
-            html = render_to_string(self.template_name, context, request=request)
-            return JsonResponse({"form": html})
-    
-def range_check(bid,low,high):
-    x= bid>=low and bid <=high
-    return x
-
-    
-    
-class BidDeleteView(View):
-    template_name="auctions/bid_pending_lists.html"
-    def post(self,request,*args,**kwargs):
-        bid = get_object_or_404(Bids, id=request.POST.get("id"))
-        print(bid)
-        context={}
-        html = render_to_string(self.template_name, context, request=request)
-        if(bid.user == self.request.user):
-                bid.delete()
-                messages.success(self.request,"Bid deleted successfully!")
-                if( is_ajax(self.request)):
-                    return JsonResponse({"form": html})
-        
-        #return JsonResponse({"form":html})
-        
-
-
-class BidPendingList(View):
-    context_object_name="bids"
-    template_name='auctions/bid_pending_lists.html'
-
-    def get(self,request,*args,**kwargs):
-        context=self.get_context_data()
-        if( is_ajax(self.request)):
-            html = render_to_string(self.template_name, context, request=request)
-            return JsonResponse({"form": html})
-
-        return render(request,self.template_name,context)
-
-    def get_queryset(self):
-        user=self.request.user
-        bids=Bids.objects.filter(user=user)
-        return bids
-    
-    def get_context_data(self):
-        context={}
-        qs=self.get_queryset()
-        context[self.context_object_name]=qs
-        return context
-
-    
-
-#notification alerts
-class ListAlertsView(LoginRequiredMixin,ListView):
-    model=Notification
-    context_object_name="notifications"
-    template_name='_notification_list.html'
-    #object_list=None
-    def get(self, request, *args, **kwargs):
-        queryset=self.get_queryset()
-        context = super().get_context_data(object_list=queryset)
-        if(is_ajax(request)):
-            html = render_to_string("_notification_list.html", context, request=request)
-            return JsonResponse({"form": html})
-            
-        
-
-    def get_queryset(self,**kwargs):
-        
-        """
-        list of ["q==notification query","msg==customized"]
-        """
-        query_set=Notification.objects.filter(receiver=self.request.user)
-        
-        res=[]
-        for q in query_set:
-            t=[]
-            is_like=False
-            is_auction_notice=False
-            is_bid_notice=False
-            is_checked=False
-            msg=""
-            is_checked=q.is_checked
-
-            if(q.is_like):
-                is_like=True
-                username_list = ""
-                auction=q.auction
-                num_of_likes=auction.upvotes.all().count()
-                if(num_of_likes>0 and num_of_likes%3 == 0):
-                
-                    for voter in auction.upvotes.all()[0:2]:
-                        if not notes_user == self.request.user:
-                            username_list += notes_user.username + ","
-                    remaining_likes = auction.upvotes.all().count() - 2
-                    msg = (
-                        username_list
-                        + " and "
-                        + str(remaining_likes)
-                        + " others upvoted your auction!"
-                    )
-                else:
-                    if(auction.user != self.request.user ):
-                        msg = q.user.username + " liked " + " your auction!"
-
-
-            
-            elif(q.auction and not q.bid):
-                """auction notice"""
-                is_auction_notice=True
-                msg=q.auction.user.username+"posted an auction. "
-
-
-            elif(q.bid and q.auction):
-                """is_bid_notice"""
-
-                is_bid_notice=True
-                msg=q.other_user.username +" has put bid on your auction "+q.auction.title
-            
-            t=[q,is_like,is_auction_notice,is_bid_notice,msg,is_checked]
-            res.append(t)
-        return res
-
-class BidHandleView(LoginRequiredMixin,View):
-    def handle_silently(self):
-        return JsonResponse({})
-    def post(self, request, *args, **kwargs):
-        intent=request.POST.get('intent')
-        id_=request.POST.get('id')
-        amount=request.POST.get('bid_amount')
-        auction=get_object_or_404(Auction,id=id_)
-
-        has_bid=True
-
-        if(auction.user== request.user):
-            return self.handle_silently();
-        
-        bid_html=None
-        
-        
-
-        db_entry=Bids.objects.filter(auction=auction,user=request.user)
-        if(intent== '0'):
-            #add bid
-            if(db_entry.exists()):
-                print("already")
-                self.handle_silently()
-            else:
-                db_entry=Bids.objects.create(auction=auction,user=request.user,bid_amount=amount)
-                print("new")
-                
-        else:
-            if( not db_entry.exists()):
-                print("no entry")
-                self.handle_silently()
-            
-            db_entry=db_entry.first()
-            if(intent== '1'):
-                #modify bid
-                print("change")
-                db_entry.bid_amount=amount
-                db_entry.save()
-                
-            elif(intent== '2'):
-                #delete bid
-                db_entry.delete()
-                has_bid=False
-                print("del")
-        
-        if(intent=="0" or intent=="1"):
-            bid_list=get_bids_by_order(auction)
-            bid_html=render_to_string('auctions/bid_list.html',context={'bids':bid_list},request=request)
-
-        bid_form=BidForm(initial={'bid_amount':amount})
-        context={
-            "auction":auction,
-            "has_bid":has_bid,
-            "bid_form":bid_form,
-            "user":auction.user,
-        }
-        
-        html=render_to_string('auctions/bid_menu.html',context=context,request=request)
-
-        return JsonResponse({'html':html,'bid_list':bid_html,})
+    template_name='auction/detail/image.html'
 
 
         
-class ListHandleView(LoginRequiredMixin,View):
-    
-    def post(self, request, *args, **kwargs):
-        intent=request.POST.get('intent')
-        note_id=request.POST.get('id')
-        note=None
-        user=None
-        if(intent!=2):
-            note=get_object_or_404(Notification,id=note_id)
-            if not note.user==request.user:
-                return JsonResponse({});
-        if(intent==2):
-            user=get_object_or_404(BidUser,id=note_id)
-            if not user==request.user:
-                return JsonResponse({});
-
-        if(intent=='0'):
-            #checked
-            if(not note.is_checked):
-                note.is_checked=True
-                note.save()
-                print("yi")
-
-
-        
-        elif(intent=='1'):
-            #delete
-            note.delete()
-            
-
-        elif(intent=='2'):
-            #clear
-            user.bids_alert.all().delete()
-
-        return JsonResponse({});
-
-
-
-
-            
-
-
 @login_required
 def LikeAuction(request):
     auction = get_object_or_404(Auction, id=request.POST.get("id"))
@@ -562,16 +248,16 @@ def LikeAuction(request):
         
     }
    
-    if is_ajax(request):
-        like_html = render_to_string("auctions/f_like_section.html", context=context, request=request)
-        dislike_html = render_to_string("auctions/f_dislike_section.html", context=context, request=request)
-        
-        json_data={
-            "like_html": like_html,
-            "dislike_html": dislike_html,
+    
+    like_html = render_to_string("auction/bottom/thumb_up.html", context=context, request=request)
+    dislike_html = render_to_string("auction/bottom/thumb_down.html", context=context, request=request)
+    
+    json_data={
+        "like_html": like_html,
+        "dislike_html": dislike_html,
 
-        }
-        return JsonResponse(json_data)
+    }
+    return JsonResponse(json_data)
 
 
 
@@ -591,19 +277,13 @@ def FavouriteAuction(request):
         "auction": auction,
         "is_favourite": is_fav,
     }
-    if is_ajax(request):
-        html = render_to_string("auctions/f_fav_section.html", context, request=request)
-        return JsonResponse({"form": html})
+
+    html = render_to_string("auction/bottom/fav.html", context, request=request)
+    return JsonResponse({"form": html})
 
 class FavouriteAuctionList(ListView):
     template_name="_index.html"
     context_object_name=INDEX_CONTEXT_NAME
     def get_queryset(self):
         favourite_posts = self.request.user.favourites.all()
-        return get_auction_query_set(favourite_posts, self.request)
-    
-    
-    
-
-
-
+        return Auction.query.get_serialized_query_set(favourite_posts, self.request)

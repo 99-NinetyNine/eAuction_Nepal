@@ -7,12 +7,12 @@ import operator
 
 from .models import (
     Auction,
-    Bids,
+    Bid,
     Notification,
 )
 
 from users.models import (
-    BidUser,
+    User,
     Rating,
 )
 
@@ -25,9 +25,9 @@ class HomePageTest(TestCase):
 class RatingPriorityTest(TestCase):
     
     def setUp(self):
-        self.user1=BidUser.objects.create(username="user1")
-        self.user2=BidUser.objects.create(username="user2")
-        self.user3=BidUser.objects.create(username="user3")
+        self.user1=User.objects.create(username="user1")
+        self.user2=User.objects.create(username="user2")
+        self.user3=User.objects.create(username="user3")
 
         self.auction=Auction.objects.create(title="test auction",description="test desc",user=self.user1,price_min_value=2,price_max_value=40)
         self.auction.bids.create(user=self.user2,bid_amount=15)

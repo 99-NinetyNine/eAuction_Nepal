@@ -3,16 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}eBid{% endblock title %}</title>
+    <title>Auction System{% block title %}{% endblock title %}</title>
     
     {% load static %}
     {% load crispy_forms_tags %}
     
-    <link
-      rel="icon"
-      href="https://salilesh-bucket.s3.us-east-2.amazonaws.com/favicon.ico"
-      type="image/x-icon"
-    />
     {% comment %} <link
       rel="stylesheet"
       type="text/css"
@@ -41,13 +36,13 @@
 
 <div class="container">
     <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-4">
       {% block left_sidebar %}
         {% include "_notification_list.html" %}
-        {% include "auctions/bid_pending_lists.html" %}
+        {% include "bid/list.html" %}
       {% endblock left_sidebar %}
       </div>
-      <div class="col-sm-8">
+      <div class="col-sm-7">
         
         {% block content %}
 
@@ -56,7 +51,7 @@
       <div class="col-sm-1">
         {% block right_content %}
         
-        {% include "users/search_results.html" %}
+        {% include "pages/search_results.html" %}
         {% endblock right_content %}
       </div>
       

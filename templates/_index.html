@@ -1,17 +1,17 @@
 {% extends '_base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Ebid | Home{% endblock title %}
+{% block title %} | Home{% endblock title %}
 
 {% block content %}
 {% for auction,is_liked ,is_disliked,is_favourite in auctions %}
 
-{% include "auctions/auction_top_part.html" %}
+{% include "auction/detail/top_part.html" %}
 <br>
 {% include "_single_estate.html" %}
 
 
-{% include 'auctions/f_like_bid.html' %}
+{% include 'auction/bottom/all.html' %}
 
 {% endfor %}
 

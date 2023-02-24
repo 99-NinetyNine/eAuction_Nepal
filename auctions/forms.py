@@ -1,9 +1,6 @@
-from django import forms 
-from .models import (
-    Auction,
-    AuctionImage,
-    Bids,
-)
+from django import forms
+from mechanism.auction import Auction,AuctionImage
+from mechanism.notification import Notification
 
 
 class AuctionForm(forms.ModelForm):
@@ -12,6 +9,7 @@ class AuctionForm(forms.ModelForm):
         fields = [
             "title",
             "description",
+            "youtube",
             "price_min_value",
             "price_max_value",
             "expiry_date",
@@ -27,18 +25,6 @@ class AuctionForm(forms.ModelForm):
 
         }
 
-
-class BidForm(forms.ModelForm):
-    class Meta:
-        model = Bids
-        fields = [
-            "bid_amount",           
-
-        ]
-
-        labels = {
-            "bid_amount": "Enter bid amount(within range)",
-        }
     
 
 

@@ -1,0 +1,37 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+{% block title %} | {{ auction.title }}{% endblock title %}
+
+
+{% block left_sidebar %}
+
+{% for auction,is_liked,is_disliked,is_favourite in single_auction %}
+
+{% include "auction/detail/top_part.html" %}
+<h5>{{ auction.title }}</h5>
+<p>{{ auction.description }}<p>
+{% include "_single_estate.html" %}
+
+
+{% include 'auction/expiry_price.html' %}
+
+
+{% if not  request.user == auction.user %}
+<div id="bidSection">
+{% include 'bid/menu.html' %}
+</div>
+{% endif %}
+
+{% endfor %}
+
+{% endblock left_sidebar %}
+
+
+{% block content %}
+
+{% include "auction/youtube.html" %}
+{% include "bid/list.html" %}
+
+{% endblock content %}
+
