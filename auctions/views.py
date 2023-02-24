@@ -94,7 +94,8 @@ def AuctionCreate(request):
                 auction.delete()
                 messages.success(request, "Post has not created.")
                 return redirect("create_auction")
-
+            
+            auction.auction_created_alert()
             messages.success(request, "Post has been successfully created.")
             return redirect("home")
 
@@ -226,6 +227,7 @@ def LikeAuction(request):
         else:
             auction.upvotes.add(request.user)
             is_liked=True
+            auction.new_like_notification(liker=request.user)
             
             if auction.downvotes.filter(id=request.user.id).exists():
                 auction.downvotes.remove(request.user)

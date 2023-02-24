@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('a/',include('auctions.urls')),
+    path('',include('auctions.urls')),
     path('admin/', admin.site.urls),    
     path('ai/',include('ai.urls')),
     path('auth/',include('simple_auth.urls')), 

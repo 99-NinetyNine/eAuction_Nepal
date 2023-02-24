@@ -51,6 +51,8 @@ class BidCreateView(LoginRequiredMixin,View):
             bid.auction=estate_
             bid.user=self.request.user
             bid.save()
+
+            bid.bid_created_alert()
         
         context = {
         "bid_form":bid,
@@ -134,20 +136,20 @@ class BidHandleView(LoginRequiredMixin,View):
         has_bid=True
 
         if(auction.user== request.user):
-            return self.handle_silently();
+            return self.handle_silently()
         
         bid_html=None
         
         
 
-        db_entry=Bid.objects.filter(auction=auction,user=request.user)
+        db_entry=Bid.objects.filter(auction=auction,bidder=request.user)
         if(intent== '0'):
             #add bid
             if(db_entry.exists()):
                 print("already")
                 self.handle_silently()
             else:
-                db_entry=Bid.objects.create(auction=auction,user=request.user,bid_amount=amount)
+                db_entry=Bid.objects.create(auction=auction,bidder=request.user,bid_amount=amount)
                 print("new")
                 
         else:
@@ -169,7 +171,7 @@ class BidHandleView(LoginRequiredMixin,View):
                 print("del")
         
         if(intent=="0" or intent=="1"):
-            bid_list=get_bids_by_order(auction)
+            bid_list=auction.get_bids_by_order()
             bid_html=render_to_string('bid/list.html',context={'bids':bid_list},request=request)
 
         bid_form=BidForm(initial={'bid_amount':amount})

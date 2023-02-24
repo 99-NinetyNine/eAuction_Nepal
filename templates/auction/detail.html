@@ -17,12 +17,6 @@
 {% include 'auction/expiry_price.html' %}
 
 
-{% if not  request.user == auction.user %}
-<div id="bidSection">
-{% include 'bid/menu.html' %}
-</div>
-{% endif %}
-
 {% endfor %}
 
 {% endblock left_sidebar %}
@@ -30,8 +24,16 @@
 
 {% block content %}
 
+{% if not  request.user == auction.user %}
+<div id="bidSection">
+{% include 'bid/menu.html' %}
+</div>
+{% endif %}
+
 {% include "auction/youtube.html" %}
-{% include "bid/list.html" %}
 
 {% endblock content %}
+{% block right_content %}
+{% include "bid/list.html" %}
 
+{% endblock %}

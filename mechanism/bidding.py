@@ -35,3 +35,14 @@ class Bid(models.Model):
     def __str__(self):
         return self.bidder.username+" bid %s" %str(self.id)[0:4]
     
+
+    def bid_created_alert(instance):
+        owner=instance.auction.user
+        bidder=instance.bidder
+        auction=instance.auction
+
+        from mechanism.notification import Notification
+        Notification.objects.create_for_new_bid(
+            receiver=owner,
+            bidder=bidder,
+        )

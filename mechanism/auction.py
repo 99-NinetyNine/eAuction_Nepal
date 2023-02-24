@@ -21,6 +21,7 @@ User=get_user_model()
 # class Place(models.Model):
 #     city = models.CharField(max_length=100)
 #     location = PlainLocationField(based_fields=['city'], zoom=7)
+from mechanism.notification import Notification
 
 class AuctionManager(models.Manager):
     def get_queryset_for(self,user):
@@ -73,6 +74,7 @@ class Auction(models.Model):
         editable=False)
     query=AuctionManager()
     objects=models.Manager()
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="auction")
     title=models.CharField(max_length=30,blank=False,null=True)
     description = models.CharField(max_length=200, blank=False,null=True)
@@ -95,7 +97,25 @@ class Auction(models.Model):
     class Meta:
         ordering = ["-pub_date"]
 
+    def new_like_notification(self,liker):
+        Notification.objects.create_for_new_like(self.user, liker)
+
+    def auction_created_alert(instance):
+        """
+        user x created an auction.
+        Brodcast to [user_lists] users
+        """
+        x=instance.user
+        user_lists=x.get_my_subscribers()
         
+        
+        for u in user_lists:
+            Notification.objects.create_for_new_auction(
+                receiver=u,
+                auction=instance,
+            )
+        print("user x created an auction Brodcast to [user_lists] users")
+
     def get_bids_by_order(self):
         from django.db.models import Avg
         qs=self.bids.annotate(ratings=Avg('bidder__to__rating')).order_by('bid_amount','-ratings')

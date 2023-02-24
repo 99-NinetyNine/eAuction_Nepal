@@ -20,7 +20,37 @@ class NotificationType(models.TextChoices):
     NEW_AUCTION="0"
     OUTBID="1"
     AUCTION_AWARD="2"
-    LIKE="3"
+    NEW_LIKE="3"
+    NEW_BID="4"
+
+class NotificationManager(models.Manager):
+    def create_for_new_auction(self,receiver,auction):
+        instance=self.create(
+            receiver=receiver,
+            link_id=auction.id,
+            purpose=NotificationType.NEW_AUCTION,
+        )
+
+        return instance
+    def create_for_new_bid(self,receiver,bidder):
+        return self.create(
+            receiver=receiver,
+            link_id=bidder.id,
+            purpose=NotificationType.NEW_BID,
+        )
+    def create_for_new_like(self,owner,liker):
+        if owner == liker:  # avoid sailesh liked sailesh post.
+            return
+
+        return self.create(
+            receiver=owner,
+            link_id=liker.id,
+            purpose=NotificationType.NEW_LIKE
+        )
+        
+
+
+
 
 class Notification(models.Model):
     id= models.UUIDField(
@@ -28,6 +58,8 @@ class Notification(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False)
+    objects=NotificationManager()
+
     receiver = models.ForeignKey(
         User, related_name="notifications", on_delete=models.CASCADE, default=None
     )
