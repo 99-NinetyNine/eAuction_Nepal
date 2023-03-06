@@ -57,20 +57,26 @@ def hello_dodo(x):
     print("beat beat",x)
 
 import random
-def testy(re):
+def testy_od(re):
     hello_dodo.delay("hi")
     return render(re,"_auction.html",{"msg":"doing something by celery"})
 
+def testy(re):
+    return render(re,"need.html",{"msg":"doing something by celery"})
+
+
+from pprint import pprint
 class HomeView(LoginRequiredMixin,ListView):
     model=Auction
     template_name='_index.html'
-    context_object_name=INDEX_CONTEXT_NAME
 
-    def get_queryset(self,**kwargs):
-        return Auction.query.get_serialized_query_set(Auction.objects.all(),self.request)
     
     def get_context_data(self,**kwargs):
         context=super().get_context_data(**kwargs)
+        qs=Auction.query.for_index_page()
+        
+        context["newly_listed"],context["others"]   =   qs
+        
         return context
         
     
@@ -136,7 +142,6 @@ class AuctionDetailView(View):
 
     def get_object(self):
         self.pk=self.kwargs.get('pk')
-        print(self.pk)
         self.auction=get_object_or_404(Auction,id=self.pk)
         return Auction.query.get_serialized_query_set(self.auction, self.request,True)
     def get_bid_form(self):
@@ -169,6 +174,101 @@ class AuctionDetailView(View):
     
     
     
+class NewAuctionDetailView(View):
+    template_name='auction/detail.html'
+    pk=None
+    auction=None
+    
+    bidder_deposited_ten_percent =False
+    bidder_has_bid = False
+    bidder_won=False
+    bidder_paid_ninty_percent=False
+    seven_days_since_won_and_not_paid=False
+
+    did_he_bid=False
+    
+    def get(self,*args,**kwargs):
+
+
+        self.pk=self.kwargs.get('pk')
+        self.auction=get_object_or_404(Auction,id=self.pk)
+        
+        self.seeing_by_admins       =   False
+        self.seeing_by_bidder       =   True
+        self.seeing_by_anonynous    =   False
+        ##
+        self.of_type_open           =   self.auction.is_type_open()
+        ##
+        self.bidding_not_started    =   self.auction.bidding_not_started()
+        self.in_bidding_season      =   self.auction.in_bidding_season()
+        self.bidding_season_closed  =   self.auction.bidding_season_closed()
+        self.disclosed_by_admins    =   self.auction.disclosed_by_admins()
+
+        if(not self.request.user.is_authenticated):
+            
+            self.handle_anonymous_user()
+
+        else:
+            if(self.request.user.is_one_of_admins()):
+                
+                self.handle_admins()
+            
+            else:
+                self.handle_bidder()
+
+
+        #common data, max price,len(bidders),etc
+        return render(self.request,self.template_name,self.get_context_data())
+    
+    def handle_anonymous_user(self):
+        self.seeing_by_anonynous=True
+
+
+    def handle_admins(self):
+        self.seeing_by_admins=True
+
+
+    def handle_bidder(self):
+        self.seeing_by_bidder=True
+        if(self.bidding_not_started or self.in_bidding_season):
+            self.bidder_deposited_ten_percent=self.auction.bidder_paid_initial(self.request.user)
+        
+        if(self.disclosed_by_admins and self.request.user==self.auction.get_bid_winner()):
+            self.is_he_winner=True    
+    
+        if self.bidder_deposited_ten_percent:
+            self.did_he_bid=self.auction.is_he_bidder(self.request.user)
+            if self.did_he_bid:
+                self.amount_he_bid=self.auction.get_amount_he_bid(self.request.user)
+        
+
+    def get_context_data(self):
+        context={}
+        if(self.of_type_open or self.disclosed_by_admins):
+            bids=self.auction.get_bids_by_order()
+        else:
+            bids=[]
+        
+        context["detail_view"]=True
+        context["bids"]=bids
+        
+        context["seeing_by_admins"]                     =       self.seeing_by_admins
+        context["seeing_by_bidder"]                     =       self.seeing_by_bidder
+        context["seeing_by_anonynous"]                  =       self.seeing_by_anonynous
+        context["of_type_open"]                         =       self.of_type_open
+        context["bidding_not_started"]                  =       self.bidding_not_started
+        context["in_bidding_season"]                    =       self.in_bidding_season
+        context["bidding_season_closed"]                =       self.bidding_season_closed
+        context["disclosed_by_admins"]                  =       self.disclosed_by_admins
+        context["bidder_deposited_ten_percent"]         =       self.bidder_deposited_ten_percent
+        context["bidder_has_bid"]                       =       self.bidder_has_bid
+        context["bidder_won"]                           =       self.bidder_won
+        context["bidder_paid_ninty_percent"]            =       self.bidder_paid_ninty_percent
+        context["seven_days_since_won_and_not_paid"]    =       self.seven_days_since_won_and_not_paid
+        context["did_he_bid"]                           =       self.did_he_bid
+
+        return context
+
 
 
         

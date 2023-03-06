@@ -14,6 +14,7 @@ from django.conf import settings
 from django.shortcuts import reverse
 
 
+import random
 from django.contrib.auth import get_user_model
 User=get_user_model()
 # class Place(models.Model):
@@ -24,6 +25,14 @@ from mechanism.notification import Notification
 class AuctionManager(models.Manager):
     def get_queryset_for(self,user):
         return self.get_queryset()
+    
+    def for_index_page(self):
+        qs=self.get_queryset()
+        rd=random.randint(0,len(qs))
+        new=qs[0:rd]
+        old=qs[rd:]
+
+        return [n.prepare_for_index_page() for n in new],[o.prepare_for_index_page() for o in old]
         
     def get_serialized_query_set(self,query_set,request,single_item=False):
         """
@@ -53,16 +62,16 @@ class AuctionManager(models.Manager):
         
         return res
 
-    
+
 
     def get_highest_bidder(self,auction):
-            biddings=auction.bids.all()
-            highest=biddings.first()
-            for bidding in biddings:
-                if bidding.bid_amount > highest.bid_amount:
-                    highest=bidding
-            
-            return highest
+        biddings=auction.bids.all()
+        highest=biddings.first()
+        for bidding in biddings:
+            if bidding.bid_amount > highest.bid_amount:
+                highest=bidding
+        
+        return highest
 
 class Auction(models.Model):
     id= models.UUIDField(
@@ -102,24 +111,73 @@ class Auction(models.Model):
 
     pub_date = models.DateTimeField(default=timezone.now)
     expiry_date=models.DateTimeField(default=timezone.now)  #put it 7 days later
-        
+
+    #decremented after each admin login when case of close auction.
+    semaphore=models.IntegerField(default=3,null=True,blank=True)
 
     class Meta:
         ordering = ["-pub_date"]
 
-    @staticmethod
-    def prepare_for_detail_page(auction):
-        return auction
+    def disclosed_by_admins(self):
+        if(self.is_type_open()):
+            return True
+            
+        return self.semaphore==0
 
     #otp for disclosing bids
     def get_otp_for_admins(self):
+        print("otp are",1102,1021,1212)
         return 112,121,1212
-    def get_otp_for_adminA(self):
-        return 1
-    def get_otp_for_adminB(self):
-        return 1
-    def get_otp_for_adminC(self):
-        return 1
+
+
+    def check_otp_for_admins(self):
+        return True
+
+    def down_semaphore(self):
+        #sysnchornization or memorization haha..??
+        if(self.semaphore>0):
+            self.semaphore  -=1
+        else:
+            print("errie")
+
+
+    def get_bid_winner(self):
+        biddings=self.bids.all()
+        highest=biddings.first()
+        for bidding in biddings:
+            if bidding.bid_amount > highest.bid_amount:
+                highest=bidding
+        
+        return highest.bidder
+
+    def prepare_for_index_page(self,request=None):
+        
+        t=self.__dict__
+        t["db"]=self
+        t["fav"]=self.favourite.filter(id=request.user.id if request else 0).exists()    
+        #print(t)
+        return t
+
+    def is_type_open(self):
+        return self.open_close #open=1,close=0
+    def is_he_bidder(self,some_user):
+        return self.bids.filter(bidder=some_user).exists()
+    def get_amount_he_bid(self,some_user):
+        return self.bids.filter(bidder=some_user).first().bid_amount
+        
+    def bidding_not_started(self):
+        return False
+    def in_bidding_season(self):
+        return True
+    def bidding_season_closed(self):
+        return False
+    
+    
+
+    def prepare_for_detail_page(auction):
+        return auction
+
+    
     #notifications
     def new_like_notification(self,liker):
         Notification.objects.create_for_new_like(self.user, liker)

@@ -1,0 +1,30 @@
+{% load static %}
+<thead>
+    <tr>
+        <th>Bidder</th>
+        <th>date</th>
+        <th>time</th>
+        <th>Bid Amount</th>
+    </tr>
+</thead>
+<tbody>
+        {% for bid in bids %}
+        <tr>
+            <td data-history="bidder">
+                <div class="user-info">
+                    <div class="thumb">
+                        <img src="{{ bid.bidder.profile.image.url }}" alt="history">
+                    </div>
+                    <div class="content">
+                        {{ bid.bidder.username }}
+                    </div>
+                </div>
+            </td>
+            <td data-history="date">06/16/2021</td>
+            <td data-history="time"><h1> PM</h1></td>
+            <td data-history="unit price">Rs. {{ bid.bid_amount }}</td>
+        </tr>
+        {% empty %}
+        <h3>No bidder yet.</h3>
+        {% endfor %}
+    </tbody>
