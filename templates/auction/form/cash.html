@@ -1,0 +1,9 @@
+<form action="." method="POST">
+    {% csrf_token %}
+    
+    <button type="submit" class="btn" id="favourite" name="tweet_id" value="{{ auction.id }}">
+    <i class="fa fa-money" style="font-size:32px;"></i>
+    </button>
+    
+</form>
+

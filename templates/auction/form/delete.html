@@ -1,0 +1,18 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+    
+{% block title %}Ebid | Auction Delete{% endblock title %}
+
+{% block content %}
+<form action="" method='POST'>{% csrf_token %}
+
+<h5>Are you Sure you want to remove {{ auction.title }} ?</h5>
+
+
+{{ form| crispy }}
+
+<button type="submit" class="btn btn-outline-danger">Delete Auction</button>
+</form>
+
+
+{% endblock content %}

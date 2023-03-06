@@ -1,0 +1,20 @@
+<div class="d-flex flex-row justify-content-around">
+  
+    {% include "auction/bottom/like_dislike.html" %}
+  
+  
+  
+   
+
+  <div class="p-2">
+    <a href="{{ auction.get_absolute_url }}">
+      <button class="btn"> 
+      <span class="fa fa-money" style="font-size:36px;color:green"></span></button>
+    </a>
+  </div>
+
+  <div class="p-2" id="fav-section{{ auction.id }}">
+    {% include 'auction/bottom/fav.html' %}
+  </div>
+  
+</div>

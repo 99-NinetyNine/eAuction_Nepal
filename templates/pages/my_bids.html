@@ -1,0 +1,312 @@
+{% extends '_base.html' %}
+{% block title %}
+
+{% endblock title %}
+{% block hero %}
+    <!--============= Hero Section Starts Here =============-->
+    <div class="hero-section style-2 pb-lg-400">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'home' %}">Home</a>
+                </li>
+                <li>
+                    <a href="#0">My Account</a>
+                </li>
+                <li>
+                    <span>Dashboard</span>
+                </li>
+            </ul>
+        </div>
+        <div class="bg_img hero-bg bottom_center" data-background="/static/images/demo/hero-bg.png" style="background-image: url(&quot;/static/images/demo/hero-bg.png&quot;);"></div>
+    </div>
+    <!--============= Hero Section Ends Here =============-->
+
+{% endblock hero %}
+
+{% block content %}
+
+
+
+
+    <!--============= Dashboard Section Starts Here =============-->
+    <section class="dashboard-section padding-bottom mt--240 mt-lg--325 pos-rel">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-sm-10 col-md-7 col-lg-4">
+                    <div class="dashboard-widget mb-30 mb-lg-0">
+                        <div class="user">
+                            <div class="thumb-area">
+                                <div class="thumb">
+                                    <img src="./assets/images/dashboard/user.png" alt="user">
+                                </div>
+                                <label for="profile-pic" class="profile-pic-edit"><i class="flaticon-pencil"></i></label>
+                                <input type="file" id="profile-pic" class="d-none">
+                            </div>
+                            <div class="content">
+                                <h5 class="title"><a href="#0">Percy Reed</a></h5>
+                                <span class="username">john@gmail.com</span>
+                            </div>
+                        </div>
+                        <ul class="dashboard-menu">
+                            <li>
+                                <a href="#0" class="active"><i class="flaticon-dashboard"></i>Dashboard</a>
+                            </li>
+                            <li>
+                                <a href="profile.html"><i class="flaticon-settings"></i>Personal Profile </a>
+                            </li>
+                            <li>
+                                <a href="my-bid.html"><i class="flaticon-auction"></i>My Bids</a>
+                            </li>
+                            <li>
+                                <a href="winning-bids.html"><i class="flaticon-best-seller"></i>Winning Bids</a>
+                            </li>
+                            <li>
+                                <a href="notifications.html"><i class="flaticon-alarm"></i>My Alerts</a>
+                            </li>
+                            <li>
+                                <a href="my-favorites.html"><i class="flaticon-star"></i>My Favorites</a>
+                            </li>
+                            <li>
+                                <a href="referral.html"><i class="flaticon-shake-hand"></i>Referrals</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-lg-8">
+
+
+                    <div class="dashboard-widget mb-40">
+                        <h5 class="title mb-10">Purchasing</h5>
+                        <div class="dashboard-purchasing-tabs">
+                            <ul class="nav-tabs nav">
+                                <li>
+                                    <a href="#current" class="active" data-toggle="tab">Current</a>
+                                </li>
+                                <li>
+                                    <a href="#pending" data-toggle="tab">Pending</a>
+                                </li>
+                                <li>
+                                    <a href="#history" data-toggle="tab">History</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane show active fade" id="current">
+                                    <table class="purchasing-table">
+                                        <thead>
+                                            <tr><th>Item</th>
+                                            <th>Bid Price</th>
+                                            <th>Highest Bid</th>
+                                            <th>Lowest Bid</th>
+                                            <th>Expires</th>
+                                        </tr></thead>
+                                        <tbody>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane show fade" id="pending">
+                                    <table class="purchasing-table">
+                                        <thead>
+                                            <tr><th>Item</th>
+                                            <th>Bid Price</th>
+                                            <th>Highest Bid</th>
+                                            <th>Lowest Bid</th>
+                                            <th>Expires</th>
+                                        </tr></thead>
+                                        <tbody>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="tab-pane show fade" id="history">
+                                    <table class="purchasing-table">
+                                        <thead>
+                                            <tr><th>Item</th>
+                                            <th>Bid Price</th>
+                                            <th>Highest Bid</th>
+                                            <th>Lowest Bid</th>
+                                            <th>Expires</th>
+                                        </tr></thead>
+                                        <tbody>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                            <tr>
+                                                <td data-purchase="item">2018 Hyundai Sonata</td>
+                                                <td data-purchase="bid price">$1,775.00</td>
+                                                <td data-purchase="highest bid">$1,775.00</td>
+                                                <td data-purchase="lowest bid">$1,400.00</td>
+                                                <td data-purchase="expires">7/2/2021</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--============= Dashboard Section Ends Here =============-->
+
+
+{% endblock %}

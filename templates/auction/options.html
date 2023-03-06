@@ -1,0 +1,19 @@
+<div class="btn-group dropleft float-right">
+ 
+  <i class="fa fa-caret-left fa-3x dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-hidden="true"></i>
+  
+  <div class="dropdown-menu">
+  {% if auction.user == request.user %}
+    <a href="{% url 'edit_auction' auction.id %}" type="button" class="dropdown-item">
+        Edit auction</a>    
+    <a class="dropdown-item" href="{% url 'delete_auction' auction.id %}">
+    Delete auction</a>
+
+  {% endif %}
+
+  {% if not auction.user  == request.user %}
+    <a class="dropdown-item" href="#">
+    Report auction</a>
+  {% endif %}
+  </div>
+</div>

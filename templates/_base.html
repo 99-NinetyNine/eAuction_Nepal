@@ -1,0 +1,469 @@
+{% load static %}
+
+<!DOCTYPE HTML>
+<html class=" sizes customelements history pointerevents postmessage webgl websockets cssanimations csscolumns csscolumns-width csscolumns-span csscolumns-fill csscolumns-gap csscolumns-rule csscolumns-rulecolor csscolumns-rulestyle csscolumns-rulewidth no-csscolumns-breakbefore no-csscolumns-breakafter no-csscolumns-breakinside flexbox picture srcset webworkers" lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>eAuction | {% block title %} Home {% endblock title %}</title>
+
+    
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    
+    
+
+    <link rel="shortcut icon" href="{% static 'images/demo/favicon.png' %}" type="image/x-icon">
+</head>
+
+<body>
+    <!--============= ScrollToTop Section Starts Here =============-->
+    <div class="overlayer" id="overlayer" style="display: none;">
+        <div class="loader">
+            <div class="loader-inner"></div>
+        </div>
+    </div>
+    <a href="#0" class="scrollToTop"><i class="fas fa-angle-up"></i></a>
+    <div class="overlay"></div>
+    <!--============= ScrollToTop Section Ends Here =============-->
+
+
+    <!--============= Header Section Starts Here =============-->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-top-wrapper">
+                    <ul class="customer-support">
+                        <li>
+                            <a href="#0" class="mr-3"><i class="fas fa-phone-alt"></i><span class="ml-2 d-none d-sm-inline-block">Customer Support</span></a>
+                        </li>
+                        <li>
+                            <i class="fas fa-globe"></i>
+                            <select name="language" class="select-bar" style="display: none;">
+                                <option value="en">En</option>
+                                <option value="Bn">Bn</option>
+                                <option value="Rs">Rs</option>
+                                <option value="Us">Us</option>
+                                <option value="Pk">Pk</option>
+                                <option value="Arg">Arg</option>
+                            </select><div class="nice-select select-bar" tabindex="0"><span class="current">En</span><ul class="list"><li data-value="en" class="option selected">En</li><li data-value="Bn" class="option">Bn</li><li data-value="Rs" class="option">Rs</li><li data-value="Us" class="option">Us</li><li data-value="Pk" class="option">Pk</li><li data-value="Arg" class="option">Arg</li></ul></div>
+                        </li>
+                    </ul>
+                    <ul class="cart-button-area">
+                        <li>
+                            <a href="#0" class="cart-button"><i class="flaticon-shopping-basket"></i><span class="amount">08</span></a>
+                        </li>                        
+                        <li>
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url 'profile_view' %}" class="user-button"><i class="flaticon-user"></i></a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="user-button"><i class="flaticon-user"></i></a>
+                        {% endif %}
+                        </li>                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="header-bottom">
+            <div class="container">
+                <div class="header-wrapper">
+                    <div class="logo">
+                        <a href="{% url 'home' %}">
+                            <h3 style="color:white;">eAuction</h3>
+                        </a>
+                    </div>
+                    <ul class="menu ml-auto">
+                        <li>
+                            <a href="{% url 'home' %}">Home</a>
+                            
+                        </li>
+
+                        <li>
+                        {% if request.user.is_inventory_incharge %}
+                            <a href="{% url 'create_auction' %} ">Auction</a>
+                        {% elif request.user.is_one_of_admins %}
+                            <a href ="{% url 'create_auction' %} ">Close Auction</a>
+                        {% else %}
+                            <a href="{% url 'bid_pending_lists' %} ">My Bid</a>
+                        {% endif %}
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'contact_view' %}">Contact</a>
+                        </li>
+                    </ul>
+                    <form class="search-form">
+                        <input type="text" placeholder="Search for brand, model....">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                    <div class="search-bar d-md-none">
+                        <a href="#0"><i class="fas fa-search"></i></a>
+                    </div>
+                    <div class="header-bar d-lg-none">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!--============= Header Section Ends Here =============-->
+
+    <!--============= Cart Section Starts Here =============-->
+    <div class="cart-sidebar-area">
+        <div class="top-content">
+            <a href="index.html" class="logo">
+                <img src="{% static 'images/demo/logo2.png' %}"alt="logo">
+            </a>
+            <span class="side-sidebar-close-btn"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="bottom-content">
+            <div class="cart-products">
+                <h4 class="title">Shopping cart</h4>
+                <div class="single-product-item">
+                    <div class="thumb">
+                        <a href="#0"><img src="{% static 'images/demo/shop01.jpg' %}" alt="shop"></a>
+                    </div>
+                    <div class="content">
+                        <h4 class="title"><a href="#0">Color Pencil</a></h4>
+                        <div class="price"><span class="pprice">$80.00</span> <del class="dprice">$120.00</del></div>
+                        <a href="#" class="remove-cart">Remove</a>
+                    </div>
+                </div>
+                <div class="single-product-item">
+                    <div class="thumb">
+                        <a href="#0"><img src="{% static 'images/demo/shop02.jpg' %}" alt="shop"></a>
+                    </div>
+                    <div class="content">
+                        <h4 class="title"><a href="#0">Water Pot</a></h4>
+                        <div class="price"><span class="pprice">$80.00</span> <del class="dprice">$120.00</del></div>
+                        <a href="#" class="remove-cart">Remove</a>
+                    </div>
+                </div>
+                <div class="single-product-item">
+                    <div class="thumb">
+                        <a href="#0"><img src="{% static 'images/demo/shop03.jpg' %}" alt="shop"></a>
+                    </div>
+                    <div class="content">
+                        <h4 class="title"><a href="#0">Art Paper</a></h4>
+                        <div class="price"><span class="pprice">$80.00</span> <del class="dprice">$120.00</del></div>
+                        <a href="#" class="remove-cart">Remove</a>
+                    </div>
+                </div>
+                <div class="single-product-item">
+                    <div class="thumb">
+                        <a href="#0"><img src="{% static 'images/demo/shop04.jpg' %}"alt="shop"></a>
+                    </div>
+                    <div class="content">
+                        <h4 class="title"><a href="#0">Stop Watch</a></h4>
+                        <div class="price"><span class="pprice">$80.00</span> <del class="dprice">$120.00</del></div>
+                        <a href="#" class="remove-cart">Remove</a>
+                    </div>
+                </div>
+                <div class="single-product-item">
+                    <div class="thumb">
+                        <a href="#0"><img src="{% static 'images/demo/shop05.jpg' %}"alt="shop"></a>
+                    </div>
+                    <div class="content">
+                        <h4 class="title"><a href="#0">Comics Book</a></h4>
+                        <div class="price"><span class="pprice">$80.00</span> <del class="dprice">$120.00</del></div>
+                        <a href="#" class="remove-cart">Remove</a>
+                    </div>
+                </div>
+                <div class="btn-wrapper text-center">
+                    <a href="#0" class="custom-button"><span>Checkout</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--============= Cart Section Ends Here =============-->
+
+            {% block hero %}
+    <!--============= Hero Section Starts Here =============-->
+    <div class="hero-section style-2">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'home' %}">Home</a>
+                </li>
+
+            </ul>
+            
+            
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}><span>{{ message }}</span></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div class="bg_img hero-bg bottom_center" data-background="{% static 'images/demo/hero-bg.png' %}"style="background-image: url(&quot;{% static 'images/demo/hero-bg.png' %}&quot;);"></div>
+    </div>
+    <!--============= Hero Section Ends Here =============-->
+    
+    {% endblock hero %}
+
+    {% block content %}
+    <!--============= Featured Auction Section Starts Here =============-->
+    <section class="featured-auction-section padding-bottom mt--240 mt-lg--440 pos-rel">
+        <div class="container">
+            <div class="section-header cl-white mw-100 left-style">
+                <h3 class="title">Newly Listed...</h3>
+            </div>
+            <div class="row justify-content-center mb-30-none">
+                 
+                {% include "_auction.html" %}{% include "_auction.html" %}{% include "_auction.html" %}{% include "_auction.html" %}
+            </div>
+        </div>
+    </section>
+    <!--============= Featured Auction Section Ends Here =============-->
+
+
+    <!--============= Product Auction Section Starts Here =============-->
+    <div class="product-auction padding-bottom">
+        <div class="container">
+            <div class="product-header mb-40">
+                <div class="product-header-item">
+                    <div class="item">Sort By : </div>
+                    <select name="sort-by" class="select-bar" style="display: none;">
+                        <option value="all">All</option>
+                        <option value="name">Name</option>
+                        <option value="date">Date</option>
+                        <option value="type">Type</option>
+                        <option value="car">Car</option>
+                    </select><div class="nice-select select-bar" tabindex="0"><span class="current">All</span><ul class="list"><li data-value="all" class="option selected">All</li><li data-value="name" class="option">Name</li><li data-value="date" class="option">Date</li><li data-value="type" class="option">Type</li><li data-value="car" class="option">Car</li></ul></div>
+                </div>
+                <div class="product-header-item">
+                    <div class="item">Show : </div>
+                    <select name="sort-by" class="select-bar" style="display: none;">
+                        <option value="09">09</option>
+                        <option value="21">21</option>
+                        <option value="30">30</option>
+                        <option value="39">39</option>
+                        <option value="60">60</option>
+                    </select><div class="nice-select select-bar" tabindex="0"><span class="current">09</span><ul class="list"><li data-value="09" class="option selected">09</li><li data-value="21" class="option">21</li><li data-value="30" class="option">30</li><li data-value="39" class="option">39</li><li data-value="60" class="option">60</li></ul></div>
+                </div>
+                <form class="product-search ml-auto">
+                    <input type="text" placeholder="Item Name">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <div class="row mb-30-none justify-content-center">
+                {% include "_auction.html" %}{% include "_auction.html" %}{% include "_auction.html" %}
+            </div>
+            <ul class="pagination">
+                <li>
+                    <a href="#0"><i class="flaticon-left-arrow"></i></a>
+                </li>
+                <li>
+                    <a href="#0">1</a>
+                </li>
+                <li>
+                    <a href="#0" class="active">2</a>
+                </li>
+                <li>
+                    <a href="#0">3</a>
+                </li>
+                <li>
+                    <a href="#0"><i class="flaticon-right-arrow"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!--============= Product Auction Section Ends Here =============-->
+
+    {% endblock content %}
+    <!--============= Footer Section Starts Here =============-->
+    
+    <!--============= Footer Section Starts Here =============-->
+    <footer class="bg_img padding-top oh" data-background="{% static 'images/demo/footer-bg.jpg' %}" style="background-image: url(&quot;{% static 'images/demo/footer-bg.jpg' %}&quot;);">
+        <div class="footer-top-shape">
+            <img src="{% static 'images/demo/footer-top-shape.png' %}"alt="css">
+        </div>
+        <div class="anime-wrapper">
+            <div class="anime-1 plus-anime">
+                <img src="{% static 'images/demo/p1.png' %}"alt="footer">
+            </div>
+            <div class="anime-2 plus-anime">
+                <img src="{% static 'images/demo/p2.png' %}"alt="footer">
+            </div>
+            <div class="anime-3 plus-anime">
+                <img src="{% static 'images/demo/p3.png' %}"alt="footer">
+            </div>
+            <div class="anime-5 zigzag">
+                <img src="{% static 'images/demo/c2.png' %}"alt="footer">
+            </div>
+            <div class="anime-6 zigzag">
+                <img src="{% static 'images/demo/c3.png' %}"alt="footer">
+            </div>
+            <div class="anime-7 zigzag">
+                <img src="{% static 'images/demo/c4.png' %}"alt="footer">
+            </div>
+        </div>
+        <div class="newslater-wrapper">
+            <div class="container">
+                <div class="newslater-area">
+                    <div class="newslater-thumb">
+                        <img src="{% static 'images/demo/newslater.png' %}"alt="footer">
+                    </div>
+                    <div class="newslater-content">
+                        <div class="section-header left-style mb-low">
+                            <h5 class="cate">Subscribe </h5>
+                            <h3 class="title">To Get Auctions Notifications</h3>
+                        </div>
+                        <form class="subscribe-form">
+                            <input type="text" placeholder="Enter Your Email" name="email">
+                            <button type="submit" class="custom-button">Subscribe</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <div class="footer-top padding-bottom padding-top">
+            <div class="container">
+                <div class="row mb--60">
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="footer-widget widget-links">
+                            <h5 class="title">Auction Categories</h5>
+                            <ul class="links-list">
+                                <li>
+                                    <a href="#0">Ending Now</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Vehicles</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Watches</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Electronics</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Real Estate</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Jewelry</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Art</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Sports &amp; Outdoor</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="footer-widget widget-links">
+                            <h5 class="title">About Us</h5>
+                            <ul class="links-list">
+                                <li>
+                                    <a href="#0">About</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Help</a>
+                                </li>
+                                
+                                
+                                <li>
+                                    <a href="#0">Our vlog</a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="footer-widget widget-links">
+                            <h5 class="title">We're Here to Help</h5>
+                            <ul class="links-list">
+                                <li>
+                                    <a href="#0">Your Account</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Safe and Secure</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Shipping Information</a>
+                                </li>
+                                <li>
+                                    <a href="#0">Contact Us</a>
+                                </li>
+                            
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="footer-widget widget-follow">
+                            <h5 class="title">Follow Us</h5>
+                            <ul class="links-list">
+                                <li>
+                                    <a href="#0"><i class="fas fa-phone-alt"></i>(646) 663-4575</a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fas fa-blender-phone"></i>(646) 968-0608</a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fas fa-envelope-open-text"></i>foo@bar@fas.com</a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fas fa-location-arrow"></i>Pulchowk</a>
+                                </li>
+                            </ul>
+                            <ul class="social-icons">
+                                <li>
+                                    <a href="#0" class="active"><i class="fab fa-facebook-f"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fab fa-twitter"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fab fa-instagram"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#0"><i class="fab fa-linkedin-in"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </footer>
+    <!--============= Footer Section Ends Here =============-->
+
+    <!--============= Footer Section Ends Here =============-->
+
+
+    <script src="{% static 'jsx/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'jsx/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'jsx/bootstrap.min.js' %}"></script>
+
+    
+    <script src="{% static 'jsx/moderni.min.js' %}"></script>
+    <script src="{% static 'jsx/plugins.js' %}"></script>
+    <script src="{% static 'jsx/isotope.min.js' %}"></script>
+    <script src="{% static 'jsx/magnific-popup.min.js' %}"></script>
+    <script src="{% static 'jsx/wow.min.js' %}"></script>
+    <script src="{% static 'jsx/owl.min.js' %}"></script>
+    <script src="{% static 'jsx/waypoints.js' %}"></script>
+    <script src="{% static 'jsx/nice-select.js' %}"></script>
+
+    <script src="{% static 'jsx/contact.min.js' %}"></script>
+    <script src="{% static 'jsx/counterup.min.js' %}"></script>
+    <script src="{% static 'jsx/yscountdown.min.js' %}"></script>
+    <script src="{% static 'jsx/main.js' %}"></script>
+    
+{% block js %}{% endblock js %}
+</body></html>
