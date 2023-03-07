@@ -40,15 +40,42 @@ class Bid(models.Model):
     #todo
     saved_confirmed=models.BooleanField(default=False)
 
+
+    ##################                  GETTERS             ##################
+    ##################                  GETTERS             ##################
+    ##################                  GETTERS             ##################
+    
     def get_absolute_url(self):
         return reverse('bid_detail', args=[str(self.id)])
     def __str__(self):
         return self.bidder.username+" bid %s" %str(self.id)[0:4]
     
+    
+    ##################                  SETTERS             ##################
+    ##################                  SETTERS             ##################
+    ##################                  SETTERS             ##################
+    
+    def mark_remaining_paid(self,txn):
+        self.remaining_trn_id=txn
+        self.save()
+        
+    ##################                  CHECKERS             ##################
+    ##################                  CHECKERS             ##################
+    
+
     def has_bid(self):
         #just depositing the 10% amount and not actually quoted bid.
         return self.bid_amount >0
-        
+
+    def initial_paid(self):
+        return self.bail_trn_id!=""
+
+    def final_paid(self):
+        return self.remaining_trn_id!=""
+    
+    ##################                  NOTIFICATION +++TODO             ##################
+    ##################                  NOTIFICATION +++TODO             ##################
+    
     def bid_created_alert(instance):
         owner=instance.auction.user
         bidder=instance.bidder

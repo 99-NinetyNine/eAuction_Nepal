@@ -65,13 +65,16 @@ class AuctionManager(models.Manager):
 
 
     def get_highest_bidder(self,auction):
-        biddings=auction.bids.all()
-        highest=biddings.first()
-        for bidding in biddings:
-            if bidding.bid_amount > highest.bid_amount:
-                highest=bidding
+        if auction.exists_in_admin_waiting_bucket() or admin.exists_in_dead_bucket() or admin.exists_in_re_schedule_bucket():
+            return None
+        if auction.exists_in_not_settled_bucket():
+            return auction.not_settled.get_current_winner()
         
-        return highest
+        elif auction.exists_in_live_bucket():
+            if(auction.of_type_open()):
+                return auction.bids.all().order_by("-bid_amount").first()
+            else:
+                None
 
 class Auction(models.Model):
     id= models.UUIDField(
@@ -112,8 +115,7 @@ class Auction(models.Model):
     pub_date = models.DateTimeField(default=timezone.now)
     expiry_date=models.DateTimeField(default=timezone.now)  #put it 7 days later
 
-    #decremented after each admin login when case of close auction.
-    semaphore=models.IntegerField(default=3,null=True,blank=True)
+    
 
     class Meta:
         ordering = ["-pub_date"]
@@ -122,14 +124,20 @@ class Auction(models.Model):
     #############               BUCKETS LOGIC HERE                      #############
     
     ##live
-    def push_to_live(self):
+    def push_to_live_bucket(self):
         from mechanism.auction_live import LiveAuction
         LiveAuction.objects.create(auction=self)
 
-    def pop_from_live(self):
+
+    def pop_from_live_bucket(self):
         self.live.delete()
         
-    def exists_in_live(self):
+    def exists_in_dead_bucket(self):
+        ##case when inventory incharge just saves but donot broadcast
+        ##for any reason 
+        return False
+
+    def exists_in_live_bucket(self):
         try:
             live=self.live
         except Exception as e:
@@ -138,13 +146,49 @@ class Auction(models.Model):
         
         return True
     
+    ##admin waiting
+    ##before pushing, it must be in just(previous) before bucket and it is removed from old bucket.
+    def push_to_admin_waiting_bucket(self):
+        from mechanism.auction_admin_waiting import AdminWaitingAuction
+
+    
+        #first pop from live
+        assert self.exists_in_live_bucket()==True
+        self.pop_from_live_bucket()
+        
+        AdminWaitingAuction.objects.create(auction=self)
+
+        print("inconsistent",e)
+
+    def pop_from_admin_waiting_bucket(self):
+        self.admin_waiting.delete()
+        
+    def exists_in_admin_waiting_bucket(self):
+        try:
+            admin_waiting_bucket=self.admin_waiting
+        except Exception as e:
+            print(e)
+            return False
+        
+        return True
+
+
     ##not_setttled
     def push_to_not_settled_bucket(self):
         from mechanism.auction_not_settled import NotSettledAuction
+        
+        if(self.is_type_open()):
+            assert self.exists_in_live_bucket() is True
+            self.pop_from_live_bucket()
+        else:
+            assert self.exists_in_admin_waiting_bucket() is True
+            self.pop_from_admin_waiting_bucket()
+        
         NotSettledAuction.objects.create(auction=self)
+        
 
     def pop_from_not_settled_bucket(self):
-        self.not_settled_bucket.delete()
+        self.not_settled.delete()
         
     def exists_in_not_settled_bucket(self):
         try:
@@ -158,6 +202,8 @@ class Auction(models.Model):
     ##setttled
     def push_to_settled_bucket(self):
         from mechanism.auction_settled import SettledAuction
+        
+        assert self.exists_in_not_settled_bucket() is True
         SettledAuction.objects.create(auction=self)
 
     def pop_from_settled_bucket(self):
@@ -175,6 +221,13 @@ class Auction(models.Model):
     ##reschedule
     def push_to_re_schedule_bucket(self):
         from mechanism.auction_reschedule import RescheduleAuction
+        
+        assert self.exists_in_not_settled_bucket() is True
+        assert self.exists_in_admin_waiting_bucket() is False
+        assert self.exists_in_settled_bucket() is False
+        assert self.exists_in_live_bucket() is False
+
+        self.pop_from_not_settled_bucket()
         RescheduleAuction.objects.create(auction=self)
 
     def pop_from_re_schedule_bucket(self):
@@ -189,6 +242,10 @@ class Auction(models.Model):
         
         return True
 
+    def recyle_to_live(self):
+        assert self.exists_in_re_schedule_bucket()
+        self.pop_from_re_schedule_bucket()
+        LiveAuction.objects.create(auction=self)
 
         
     #############               CHECKERS LOGIC STARTS HERE                      #############
@@ -197,46 +254,67 @@ class Auction(models.Model):
     #############               CHECKERS LOGIC STARTS HERE                      #############
     def is_type_open(self):
         return self.open_close #open=1,close=0
-    def is_he_bidder(self,some_user):
-        return self.bids.filter(bidder=some_user).exists()
+    def does_he_have_bid(self,some_user):
+        ret1=False
+        ret2=None
+        tuple=None
+        qs= self.bids.filter(bidder=some_user)
+        if qs.exists():
+            ret1=True
+            tuple=qs.first()
+            bid_amount=tuple.bid_amount
+        
+        return ret1, bid_amount,tuple
 
     def disclosed_by_admins(self):
-        return self.semaphore==0
+        try:
+            waiting=self.waiting_admin
+        except Exception as e:
+            print(e)
+            return False
+        return waiting.semaphore==0
 
-    def bidding_not_started(self):
-        return False
-    def in_bidding_season(self):
-        return True
-    def bidding_season_closed(self):
-        return False
-    
+
     
     def has_product_shipped(self):
         return False
 
     def bidder_paid_initial(self,bidder):
+        try:
+            tuple=self.bids.filter(bidder=bidder)
+            if(tuple.exists()):
+                return tuple.first().initial_paid()
+        except Exception as e:
+            print(e)
+
         return False
     
     def bidder_paid_remaining(self,bidder):
-    
+        tuple=self.bids.filter(bidder=bidder)
+        if(tuple.exists()):
+            return tuple.final_paid()
         return False
 
     def adminA_logged_in(self):
+        if(self.exists_in_admin_waiting_bucket()):
+            return self.admin_waiting.semaphore<3
         return False
     
     def adminB_logged_in(self):
+        if(self.exists_in_admin_waiting_bucket()):
+            return self.admin_waiting.semaphore<2
         return False
     
     def adminC_logged_in(self):
+        if(self.exists_in_admin_waiting_bucket()):
+            return self.admin_waiting.semaphore<1
         return False
 
-    def is_new_bid_okay(self,bidder,bid_amount):
-        if self.user == bidder:
-            return False
+    def is_new_bid_okay(self,bid_amount,bidder=None):
+        if(not self.of_type_open()):
+            return True
         highest_bidding=self.get_highest_bidder()
         
-        if(highest_bidding.user==bidder):
-            return False
         
         if(highest_bidding.bid_amount<=bid_amount):
             return False
@@ -252,7 +330,7 @@ class Auction(models.Model):
         return True
 
     
-    def check_otp_for_admins(self):
+    def check_otp_for_admins(self,admin,some_otp):
         return True
 
     
@@ -305,16 +383,18 @@ class Auction(models.Model):
     #############               SETTERS LOGIC STARTS HERE                      #############
     #############               SETTERS LOGIC STARTS HERE                      #############
     
-    def down_semaphore(self):
-        #sysnchornization or memorization haha..??
-        if(self.semaphore>0):
-            self.semaphore  -=1
-        else:
-            print("errie")
-
+    def some_admin_entered_otp(self):
+        if self.exists_in_admin_waiting_bucket() \
+            and self.admin_waiting.down_semaphore():
+            
+            return True
+        
+        return False
     def increase_cutoff(self):
         return 1
-    
+    def mark_expired(self):
+        pass
+        #do something
 
 
     
@@ -324,17 +404,58 @@ class Auction(models.Model):
     #############               SCHEDULABLE LOGIC STARTS HERE                      #############
     
     #expireation riggered, then excecute these fucntions    
-    def handle_expiration(self):
-        pass 
+    @staticmethod
+    def schedule_expiry_logic(self):
+        #run every 10 minutes
+        from mechanism.auction_live import LiveAuction
+        for tuple in LiveAuction.objects.all():
+            if(tuple.time_to_expire()):
+                print("tuple expired,now handling it")
+                tuple.auction.handle_auction_expiration()
+        
+        ##noe same goes for 7 days logic
+        from mechanism.auction_not_settled import NotSettledAuction
+        for tuple in NotSettledAuction.objects.all():
+            if tuple.seven_days_elapsed():
+                tuple.auction.handle_winner_was_a_liar()
+
+    def handle_auction_expiration(self):
+        self.mark_expired()
+        
+        bid_winner=self.get_bid_winner()
+
+        #2
+        self.notify_that_auction_expired()
+
+        #3
+        if self.is_type_open():
+            self.push_to_not_settled_bucket()
+        else:
+            self.push_to_admin_waiting_bucket()
+        
 
     def handle_winner_was_a_liar(self):
-        pass
+        #1
+        from mechanism.bid_liars import LiarBidder
+        winner=self.get_bid_winner()
+        LiarBidder.objects.create(auction=self,liar=winner)
+        
+        #2
+        bid_of_liar=self.bids.filter(bidder=winner)
+        bid_of_liar.charge_fine()
+        
+        #3
+        self.notify_that_winner_was_liar(winner)
 
-    def schedule_expiry_logic(self):
-        pass
-    
-    def schedule_bid_won_logic(self):
-        pass
+        #4
+        #find next bidder
+        next_winner=self.get_next_bidder()
+
+        #5
+        if(next_winner):
+            self.notify_we_have_new_winner(next_winner)
+        else:
+            self.push_to_re_schedule_bucket()
 
 
 
@@ -342,31 +463,26 @@ class Auction(models.Model):
     #############               NOTICE LOGIC STARTS HERE                      #############
     #############               NOTICE LOGIC STARTS HERE                      #############
     #############               NOTICE LOGIC STARTS HERE                      #############
-        #notifications
+    #notifications
     def new_like_notification(self,liker):
         Notification.objects.create_for_new_like(self.user, liker)
     def send_notice_to_page(self):
-        pass
+        print("notify this happednd,send_notice_to_news")
     
     def send_notice_to_news(self):
-        pass
+        print("notify this happednd,send_notice_to_news")
 
+    def notify_to_winner(self,winner):
+        print("notify this happednd,notify_to_winner")
+
+    def notify_that_auction_expired(self):
+        print("auction has expired please notify to , bid winner, notice page and others")
+
+    def notify_that_winner_was_liar(self,liar):
+        print("notify this happednd,notify_that_winner_was_liar")
     
-    def auction_created_alert(instance):
-        """
-        user x created an auction.
-        Brodcast to [user_lists] users
-        """
-        x=instance.user
-        user_lists=x.get_my_subscribers()
-        
-        
-        for u in user_lists:
-            Notification.objects.create_for_new_auction(
-                receiver=u,
-                auction=instance,
-            )
-        print("user x created an auction Brodcast to [user_lists] users")
+    def notify_we_have_new_winner(self,new_winner):
+        print("notify this happednd,notify_we_have_new_winner")
 
     
 
@@ -388,3 +504,19 @@ class Auction(models.Model):
 
     def prepare_for_detail_page(auction):
         return auction
+    
+    
+    ####SUPER CHHECKER
+    def super_checker(self):
+        haha=self.exists_in_live_bucket()\
+        +self.exists_in_admin_waiting_bucket\
+        +self.exists_in_not_settled_bucket()\
+        +self.exists_in_settled_bucket()\
+        +self.exists_in_re_schedule_bucket()
+
+        try:
+            assert haha==1
+            print("We are in good state")
+        except:
+            print("we are in inconsistent state")
+

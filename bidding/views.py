@@ -35,74 +35,93 @@ from mechanism.bidding import Bid
 
 from .forms import (
     BidForm,
+    InitialPayForm,
+    FinalPayForm,
 )
-# Create your views here.
+class PayFinalView(LoginRequiredMixin,View):
+    def post(self,*args,**kwargs):
+        form=InitialPayForm(self.request.POST)
+        if form.is_valid():
+            form.save(bidder=self.request.user)
+            error=form.get_err_msg()
+            messages.add_message(self.request, messages.ERROR, error)
+            return reverse(form.auction.get_absolute_url())
     
+        error=form.get_err_msg()
+        messages.add_message(self.request, messages.ERROR, error)
+        return reverse("home")
+
+    
+pay_final_view=PayFinalView.as_view()
+
+
+
+class PayInitialView(LoginRequiredMixin,View):
+    def post(self,*args,**kwargs):
+        form=FinalPayForm(self.request.POST)
+        if form.is_valid():
+            form.save(bidder=self.request.user)
+            error=form.get_err_msg()
+            messages.add_message(self.request, messages.ERROR, error)
+            return reverse(form.auction.get_absolute_url())
+    
+        error=form.get_err_msg()
+        messages.add_message(self.request, messages.ERROR, error)
+        return reverse("home")
+
+pay_initial_view=PayInitialView.as_view()
+
+
+    
+
+
 #bids
 class BidCreateView(LoginRequiredMixin,View):   
-    template_name="bid/form/create.html"
+    
     def post(self,request,*args,**kwargs):
-        estate_ = get_object_or_404(Auction, id=request.POST.get("id"))
-        bid_amount=request.POST.get("bid_amount")
-        bid=BidForm(bid_amount)
-        if(bid.is_valid()):
-            if(estate_.is_new_bid_okay(bidder=self.request.user,bid_amount=bid_amount) is False):
-                #todo
-                return JsonResponse({"form": html,"err":f"Bid creation Error. Enter amount bigger than {50}"}) 
-            bid.save(commit=False)
-            bid.auction=estate_
-            bid.user=self.request.user
-            bid.save()
+        form=BidForm(self.request.POST)
 
+        if(form.is_valid()):
+            bid=form.save(bidder=self.request.user)
             bid.bid_created_alert()
+            return reverse(bid.auction.get_absolute_url())
+            
         
-        context = {
-        "bid_form":bid,
-        
-        }
-        
-        html = render_to_string(self.template_name, context, request=request)
-        return JsonResponse({"form": html})
+        error=form.get_err_msg()
+        messages.add_message(self.request, messages.ERROR, error)
+        return reverse("home")
 
 
-
-class BidUpdateView(View):
-    template_name='bid/menu.html'
+class BidUpdateView(LoginRequiredMixin,View):
     
-    def post(self,request,*args,**kwargs):
-        bid = get_object_or_404(Bid, id=request.POST.get("id"))
-        bid_amount=request.POST.get("bid_amount")
-        err=None
-        if(bid.auction.is_new_bid_okay(bidder=self.request.user,bid_amount=bid_amount)):
-            if(bid.user is self.request.user):
-                bid.update(bid_amount=bid_amount)
+    def post(self,*args,**kwargs):
+        form=BidForm(self.request.POST)
+        if(form.is_valid()):
+            bid=form.save(bidder=self.request.user,commit=True)
+            return reverse(form.auction.get_absolute_url())
+    
+        error=form.get_err_msg()
+        messages.add_message(self.request, messages.ERROR, error)
+
+        return reverse("home")
+
+
+class BidDeleteView(LoginRequiredMixin,View):
+    def post(self,*args,**kwargs):
+        form=BidForm(self.request.POST)
+        if(form.is_valid() and form.delete(self.request.user)):
+            messages.add_message(self.request, messages.SUCCESS, "The bid is deleted.")
         else:
-            err="Please enter valid bid amount "
-        context = {
-            "auction":bid.auction,
-            "bid_form":BidForm(),        
-        }
+            error=form.get_err_msg()
+            messages.add_message(self.request, messages.ERROR, error)
+            return reverse(bid.auction.get_absolute_url())
         
-        html = render_to_string(self.template_name, context, request=request)
-        return JsonResponse({"form": html})
+        return reverse("home")
 
 
-    
-    
-class BidDeleteView(View):
-    template_name="bid/list.html"
-    def post(self,request,*args,**kwargs):
-        bid = get_object_or_404(Bid, id=request.POST.get("id"))
-        print(bid)
-        context={}
-        html = render_to_string(self.template_name, context, request=request)
-        if(bid.user == self.request.user):
-            bid.delete()
-            messages.success(self.request,"Bid deleted successfully!")
-            return JsonResponse({"form": html})
-        
-        #return JsonResponse({"form":html})
-        
+
+
+
 
 
 class BidPendingList(View):
@@ -128,6 +147,8 @@ class BidPendingList(View):
         return context
 
 class BidHandleView(LoginRequiredMixin,View):
+    ##my work going to vain
+    #so please learn soething useful first then only code.
     def handle_silently(self):
         return JsonResponse({})
     def post(self, request, *args, **kwargs):

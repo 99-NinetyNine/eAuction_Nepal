@@ -44,24 +44,30 @@ Create Auction
         <div class="container">
             <div class="account-wrapper mt--100 mt-lg--440">
                 <div class="left-side">
-                    <div class="section-header">
+                    {% if not_inventory_incharge %}
+                        <div class="section-header">
+                            
+                            <h6>Only Inventory Incharge can create auction.</h8>
+                        </div>
+                    {% else %}
+                        <div class="section-header">
+                            
+                            <h6>Fill the following form.</h8>
+                        </div>
+                        <form class="form" action = {% url 'create_auction' %} method='POST' enctype="multipart/form-data">{% csrf_token %}
                         
-                        <h6>Fill the following form.</h8>
-                    </div>
-                    <form class="form" action = {% url 'create_auction' %} method='POST' enctype="multipart/form-data">{% csrf_token %}
-                    
-                        
-                        {{ auction_create_form|crispy }}
-                            <br>
-    
-                        
-                    
-                    <div class="form-group mb-0">
-                        <button type="submit" class="custom-button">CREATE AUCTION</button>
-                    </div>
-  
-                </form>
+                            
+                            {{ auction_create_form|crispy }}
+                                <br>
+        
+                            
+                            
+                            <div class="form-group mb-0">
+                                <button type="submit" class="custom-button">CREATE AUCTION</button>
+                            </div>
 
+                        </form>
+                    {% endif %}
 
             </div>
                 

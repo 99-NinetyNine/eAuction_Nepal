@@ -22,6 +22,10 @@ class NotificationType(models.TextChoices):
     NEW_LIKE="3"
     NEW_BID="4"
 
+    WINNER_LIED="5"
+    REOPENING_FOR_ANY_REASON="6"
+    AUCTION_EXPIRED="7"
+
 class NotificationManager(models.Manager):
     def create_for_new_auction(self,receiver,auction):
         instance=self.create(
@@ -46,7 +50,24 @@ class NotificationManager(models.Manager):
             link_id=liker.id,
             purpose=NotificationType.NEW_LIKE
         )
+    
+    def create_for_bid_winner(self,winner,link_id):
         
+        return self.create(
+            receiver=winner,
+            link_id=link_id,
+            purpose=NotificationType.AUCTION_AWARD
+        )
+    
+    def create_for_notice_page(self,owner,liker):
+        if owner == liker:  # avoid sailesh liked sailesh post.
+            return
+
+        return self.create (
+            receiver=owner,
+            link_id=liker.id,
+            purpose=NotificationType.NEW_LIKE
+        )
 
 
 

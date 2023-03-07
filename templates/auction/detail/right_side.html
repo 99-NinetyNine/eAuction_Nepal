@@ -1,0 +1,25 @@
+<div class="col-lg-4">
+            <div class="product-sidebar-area">
+                <div class="product-single-sidebar mb-3">
+                    
+                    
+                    {% if exists_in_dead_bucket %}
+                        <h6 class="title">This Auction Starts in:</h6>
+                        <div class="countdown">
+                            <div id="bid_counter1">0d  : 09h  : 23m  : 29s</div>
+                        </div>
+                    {% elif exists_in_live_bucket %}
+                        <h6 class="title">This Auction Ends in:</h6>
+                        <div class="countdown">
+                            <div id="bid_counter1">0d  : 11h  : 23m  : 29s</div>
+                        </div>
+                    {% elif exists_in_not_settled_bucket %}
+                        <h6 class="title">This Auction is Closed:</h6>
+                    {% endif %}
+
+
+
+                </div>
+                
+            </div>
+</div>

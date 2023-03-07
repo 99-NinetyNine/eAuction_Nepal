@@ -41,6 +41,14 @@ from mechanism.bidding import Bid
 from bidding.forms import BidForm
 from .forms import (
     AuctionForm,
+    OtpFormForDisclose,
+)
+
+from bidding.forms import (
+    BidDeleteForm,
+    BidForm,
+    InitialPayForm,
+    FinalPayForm,
 )
 
 INDEX_CONTEXT_NAME="auctions"
@@ -49,14 +57,15 @@ INDEX_CONTEXT_NAME="auctions"
 
 #from mechanism.trigger import hello
 
+from pprint import pprint
 from celery import shared_task
+import random
 
 
 @shared_task()
 def hello_dodo(x):
     print("beat beat",x)
 
-import random
 def testy_od(re):
     hello_dodo.delay("hi")
     return render(re,"_auction.html",{"msg":"doing something by celery"})
@@ -64,8 +73,31 @@ def testy_od(re):
 def testy(re):
     return render(re,"need.html",{"msg":"doing something by celery"})
 
+class DefaultView(View):
+    def get(self,*args,**kwargs):
+        pass
+    def post(self,*args,**kwargs):
+        pass
 
-from pprint import pprint
+class AdminOtpView(LoginRequiredMixin,View):
+    def post(self,*args,**kwargs):
+        form=OtpFormForDisclose(self.request.POST)
+        if form.is_valid():
+            form.handle_otp()
+            return reverse(form.auction.get_absolute_url())
+        
+        error=form.get_err_msg()
+        messages.add_message(self.request, messages.ERROR, error)
+        return reverse("home")
+
+        
+        
+
+
+admin_otp_view=AdminOtpView.as_view()
+
+
+
 class HomeView(LoginRequiredMixin,ListView):
     model=Auction
     template_name='_index.html'
@@ -82,6 +114,9 @@ class HomeView(LoginRequiredMixin,ListView):
     
 
 def AuctionCreate(request):
+    if(not request.user.is_inventory_incharge()):
+        return render(request,"auction/form/create.html", {"not_inventory_incharge":True,})
+        
     if request.method == "POST":
         form = AuctionForm(request.POST,request.FILES)
         if form.is_valid():
@@ -90,6 +125,7 @@ def AuctionCreate(request):
             auction.save()
             
             auction.auction_created_alert()
+            auction.push_to_live_bucket()
             messages.success(request, "Post has been successfully created.")
             return redirect("home")
         
@@ -180,17 +216,29 @@ class NewAuctionDetailView(View):
     auction=None
     
     bidder_deposited_ten_percent =False
-    bidder_has_bid = False
-    bidder_won=False
-    bidder_paid_ninty_percent=False
-    seven_days_since_won_and_not_paid=False
-
+    
     did_he_bid=False
     is_he_winner=True
     
+    bidder_paid_ninty_percent=False
+    seven_days_since_won_and_not_paid=False
+
+    adminA_entered_otp=False
+    adminB_entered_otp=False
+    adminC_entered_otp=False
+
+
+    ##forms
+    admin_otp_form=None
+
+    bidder_paying_initial_form=None
+    bidder_paying_remaining_form=None
+
+    bid_bidding_form=None
+    bid_deleting_form=None
+
+    
     def get(self,*args,**kwargs):
-
-
         self.pk=self.kwargs.get('pk')
         self.auction=get_object_or_404(Auction,id=self.pk)
         
@@ -199,12 +247,21 @@ class NewAuctionDetailView(View):
         self.seeing_by_anonynous    =   False
         ##
         self.of_type_open           =   self.auction.is_type_open()
-        ##
-        self.bidding_not_started    =   self.auction.bidding_not_started()
-        self.in_bidding_season      =   self.auction.in_bidding_season()
-        self.bidding_season_closed  =   self.auction.bidding_season_closed()
-        self.disclosed_by_admins    =   self.auction.disclosed_by_admins()
+        ##doing this, cause we will having fun when in REACT if we send 
+        #auction object and write auction.exists_in() 
 
+        self.exists_in_dead_bucket              =   self.auction.exists_in_dead_bucket() #later manage this
+        self.exists_in_live_bucket              =   self.auction.exists_in_live_bucket()
+        self.exists_in_admin_waiting_bucket     =   self.auction.exists_in_admin_waiting_bucket()
+        self.exists_in_not_settled_bucket       =   self.auction.exists_in_not_settled_bucket()
+        self.exists_in_settled_bucket           =   self.auction.exists_in_settled_bucket()
+        self.exists_in_re_schedule_bucket       =   self.exists_in_re_schedule_bucket()
+        
+        if(self.exists_in_admin_waiting_bucket):
+            self.adminA_entered_otp  =   self.auction.adminA_logged_in()
+            self.adminB_entered_otp  =   self.auction.adminB_logged_in()
+            self.adminC_entered_otp  =   self.auction.adminC_logged_in()
+        
         if(not self.request.user.is_authenticated):
             
             self.handle_anonymous_user()
@@ -227,20 +284,36 @@ class NewAuctionDetailView(View):
 
     def handle_admins(self):
         self.seeing_by_admins=True
+        if(self.exists_in_admin_waiting_bucket):
+            self.admin_otp_form=OtpFormForDisclose(data={"auction":self.auction.id})
+
 
 
     def handle_bidder(self):
         self.seeing_by_bidder=True
-        if(self.bidding_not_started or self.in_bidding_season):
-            self.bidder_deposited_ten_percent=self.auction.bidder_paid_initial(self.request.user)
+        if(self.exists_in_dead_bucket or self.exists_in_live_bucket):
+            if(self.auction.bidder_paid_initial(self.request.user)):
+                self.bidder_deposited_ten_percent   =   True
+            else:           
+                self.bidder_paying_initial_form     =   InitialPayForm(data={'auction':str(self.auction.id)})
+
+
+            if self.bidder_deposited_ten_percent:
+                self.did_he_bid,self.amount_he_bid,bid_tuple=self.auction.does_he_have_bid(self.request.user)
+                
+                if self.did_he_bid:
+                    self.bid_bidding_form=BidForm(data={"auction":self.auction.id,"bid_amount":self.amount_he_bid})
+                    self.bid_deleting_form=BidDeleteForm(data={"bid":self.bid_tuple.id,})
+
+                else:
+                    self.bid_bidding_form=BidForm(data={"auction":self.auction.id,"bid_amount":0})
         
-        if(self.disclosed_by_admins and self.request.user==self.auction.get_bid_winner()):
-            self.is_he_winner=True    
+        if(self.exists_in_not_settled_bucket and self.request.user==self.auction.get_bid_winner()):
+            self.is_he_winner=True
+            self.bidder_paying_final_form     =   FinalPayForm(data={'auction':str(self.auction.id)})
+
     
-        if self.bidder_deposited_ten_percent:
-            self.did_he_bid=self.auction.is_he_bidder(self.request.user)
-            if self.did_he_bid:
-                self.amount_he_bid=self.auction.get_amount_he_bid(self.request.user)
+        
         
 
     def get_context_data(self):
@@ -257,17 +330,27 @@ class NewAuctionDetailView(View):
         context["seeing_by_bidder"]                     =       self.seeing_by_bidder
         context["seeing_by_anonynous"]                  =       self.seeing_by_anonynous
         context["of_type_open"]                         =       self.of_type_open
-        context["bidding_not_started"]                  =       self.bidding_not_started
-        context["in_bidding_season"]                    =       self.in_bidding_season
-        context["bidding_season_closed"]                =       self.bidding_season_closed
-        context["disclosed_by_admins"]                  =       self.disclosed_by_admins
+        context["exists_in_dead_bucket"]                =       self.exists_in_dead_bucket
+        context["exists_in_live_bucket"]                =       self.exists_in_live_bucket
+        context["exists_in_admin_waiting_bucket"]       =       self.exists_in_admin_waiting_bucket
+        context["exists_in_not_settled_bucket"]         =       self.exists_in_not_settled_bucket
+        context["exists_in_settled_bucket"]             =       self.exists_in_settled_bucket
+        context["exists_in_re_schedule_bucket"]         =       self.exists_in_re_schedule_bucket
+        context["adminA_entered_otp"]                   =       self.adminA_entered_otp
+        context["adminB_entered_otp"]                   =       self.adminB_entered_otp
+        context["adminC_entered_otp"]                   =       self.adminC_entered_otp
         context["bidder_deposited_ten_percent"]         =       self.bidder_deposited_ten_percent
-        context["bidder_has_bid"]                       =       self.bidder_has_bid
-        context["bidder_won"]                           =       self.bidder_won
-        context["bidder_paid_ninty_percent"]            =       self.bidder_paid_ninty_percent
-        context["seven_days_since_won_and_not_paid"]    =       self.seven_days_since_won_and_not_paid
         context["did_he_bid"]                           =       self.did_he_bid
         context["is_he_winner"]                         =       self.is_he_winner
+        context["bidder_paid_ninty_percent"]            =       self.bidder_paid_ninty_percent
+        context["seven_days_since_won_and_not_paid"]    =       self.seven_days_since_won_and_not_paid
+        context["admin_otp_form"]                       =       self.admin_otp_form
+        context["bidder_paying_initial_form"]           =       self.bidder_paying_initial_form
+        context["bidder_paying_remaining_form"]         =       self.bidder_paying_remaining_form
+        context["bid_bidding_form"]                     =       self.bid_bidding_form
+        context["bid_deleting_form"]                    =       self.bid_deleting_form
+        context["auction"]                              =       self.auction
+
         return context
 
 

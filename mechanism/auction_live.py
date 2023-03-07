@@ -27,3 +27,7 @@ class LiveAuction(models.Model):
 
     def __str__(self):
         return f"live auction {str(self.auction.id)[0:4]}"
+
+    def time_to_expire(self):
+        return True
+        ##return self.auction.pub_dateTrue

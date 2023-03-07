@@ -27,4 +27,4 @@ class SettledAuction(models.Model):
 
 
     def __str__(self):
-        return f"auction {str(self.auction.id)[0:4]}, winner={self.winner.username}"
+        return f"auction {str(self.auction.id)[0:4]},finnnnnnnallllly setttled  winner={self.winner.username}"

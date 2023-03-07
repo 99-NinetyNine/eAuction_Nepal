@@ -48,9 +48,9 @@ Detail
 
     {% if bidding_not_started %}
 
-    {% elif in_bidding_season %}
+    {% elif exists_in_live_bucket( %}
 
-    {% elif bidding_season_closed %}
+    {% elif exists_in_not_settled_bucket %}
 
     {% elif disclosed_by_admin %}
 

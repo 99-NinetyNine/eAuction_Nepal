@@ -21,5 +21,7 @@ urlpatterns = [
     path('favourites/',views.FavouriteAuctionList.as_view(),name="favourite_lists"),
 
 
-
+    ##admins
+    path('admin/otp/',views.admin_otp_view,name="admin_otp"),
+    
 ]
