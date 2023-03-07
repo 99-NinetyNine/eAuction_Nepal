@@ -117,54 +117,92 @@ class Auction(models.Model):
 
     class Meta:
         ordering = ["-pub_date"]
+    #############               BUCKETS LOGIC HERE                      #############
+    #############               BUCKETS LOGIC HERE                      #############
+    #############               BUCKETS LOGIC HERE                      #############
+    
+    ##live
+    def push_to_live(self):
+        from mechanism.auction_live import LiveAuction
+        LiveAuction.objects.create(auction=self)
 
-    def disclosed_by_admins(self):
-        if(self.is_type_open()):
-            return True
-            
-        return self.semaphore==0
+    def pop_from_live(self):
+        self.live.delete()
+        
+    def exists_in_live(self):
+        try:
+            live=self.live
+        except Exception as e:
+            print(e)
+            return False
+        
+        return True
+    
+    ##not_setttled
+    def push_to_not_settled_bucket(self):
+        from mechanism.auction_not_settled import NotSettledAuction
+        NotSettledAuction.objects.create(auction=self)
 
-    #otp for disclosing bids
-    def get_otp_for_admins(self):
-        print("otp are",1102,1021,1212)
-        return 112,121,1212
-
-
-    def check_otp_for_admins(self):
+    def pop_from_not_settled_bucket(self):
+        self.not_settled_bucket.delete()
+        
+    def exists_in_not_settled_bucket(self):
+        try:
+            not_settled_bucket=self.not_settled
+        except Exception as e:
+            print(e)
+            return False
+        
         return True
 
-    def down_semaphore(self):
-        #sysnchornization or memorization haha..??
-        if(self.semaphore>0):
-            self.semaphore  -=1
-        else:
-            print("errie")
+    ##setttled
+    def push_to_settled_bucket(self):
+        from mechanism.auction_settled import SettledAuction
+        SettledAuction.objects.create(auction=self)
 
-
-    def get_bid_winner(self):
-        biddings=self.bids.all()
-        highest=biddings.first()
-        for bidding in biddings:
-            if bidding.bid_amount > highest.bid_amount:
-                highest=bidding
+    def pop_from_settled_bucket(self):
+        self.settled.delete()
         
-        return highest.bidder
-
-    def prepare_for_index_page(self,request=None):
+    def exists_in_settled_bucket(self):
+        try:
+            settle=self.settled
+        except Exception as e:
+            print(e)
+            return False
         
-        t=self.__dict__
-        t["db"]=self
-        t["fav"]=self.favourite.filter(id=request.user.id if request else 0).exists()    
-        #print(t)
-        return t
+        return True
 
+    ##reschedule
+    def push_to_re_schedule_bucket(self):
+        from mechanism.auction_reschedule import RescheduleAuction
+        RescheduleAuction.objects.create(auction=self)
+
+    def pop_from_re_schedule_bucket(self):
+        self.re_schedule.delete()
+        
+    def exists_in_re_schedule_bucket(self):
+        try:
+            settle=self.re_schedule
+        except Exception as e:
+            print(e)
+            return False
+        
+        return True
+
+
+        
+    #############               CHECKERS LOGIC STARTS HERE                      #############
+    #############               CHECKERS LOGIC STARTS HERE                      #############
+    #############               CHECKERS LOGIC STARTS HERE                      #############
+    #############               CHECKERS LOGIC STARTS HERE                      #############
     def is_type_open(self):
         return self.open_close #open=1,close=0
     def is_he_bidder(self,some_user):
         return self.bids.filter(bidder=some_user).exists()
-    def get_amount_he_bid(self,some_user):
-        return self.bids.filter(bidder=some_user).first().bid_amount
-        
+
+    def disclosed_by_admins(self):
+        return self.semaphore==0
+
     def bidding_not_started(self):
         return False
     def in_bidding_season(self):
@@ -173,20 +211,8 @@ class Auction(models.Model):
         return False
     
     
-
-    def prepare_for_detail_page(auction):
-        return auction
-
-    
-    #notifications
-    def new_like_notification(self,liker):
-        Notification.objects.create_for_new_like(self.user, liker)
-    def send_notice_to_page(self):
-        pass
-    
-    def send_notice_to_news(self):
-        pass
-
+    def has_product_shipped(self):
+        return False
 
     def bidder_paid_initial(self,bidder):
         return False
@@ -203,18 +229,126 @@ class Auction(models.Model):
     
     def adminC_logged_in(self):
         return False
+
+    def is_new_bid_okay(self,bidder,bid_amount):
+        if self.user == bidder:
+            return False
+        highest_bidding=self.get_highest_bidder()
+        
+        if(highest_bidding.user==bidder):
+            return False
+        
+        if(highest_bidding.bid_amount<=bid_amount):
+            return False
+        
+        return True
+
+
+
+  
+    def has_expired(self):
+        if(self.expiry_date<= timezone.now()):
+            return False
+        return True
+
+    
+    def check_otp_for_admins(self):
+        return True
+
+    
+
+    #############               GETTERS LOGIC STARTS HERE                      #############
+    #############               GETTERS LOGIC STARTS HERE                      #############
+    #############               GETTERS LOGIC STARTS HERE                      #############
+    #############               GETTERS LOGIC STARTS HERE                      #############
+    
+
+    def __str__(self):
+        return self.user.username +" auction %s" %str(self.id)[0:4]
+
+    
+    def get_bids_by_order(self):
+        from django.db.models import Avg
+        qs=self.bids.annotate(ratings=Avg('bidder__to__rating')).order_by('bid_amount','-ratings')
+        return qs
+    def get_youtube(self):
+        return f"https://www.youtube.com/embed/{self.youtube}?autoplay=1&mute=1&loop=1&controls=0"
+        
+    def get_highest_bidder(self):
+        return Auction.query.get_highest_bidder(self)
+
+    def get_absolute_url(self):
+        return reverse("auction_detail", args=[str(self.id)])
+
+    def get_otp_for_admins(self):
+        print("otp are",1102,1021,1212)
+        return 112,121,1212
+
+    
+    def total_upvotes(self):
+        return self.upvotes.count()
+
+    def get_amount_he_bid(self,some_user):
+        return self.bids.filter(bidder=some_user).first().bid_amount
+    
+    def get_bid_winner(self):
+        biddings=self.bids.all()
+        highest=biddings.first()
+        for bidding in biddings:
+            if bidding.bid_amount > highest.bid_amount:
+                highest=bidding
+        
+        return highest.bidder
+
+    #############               SETTERS LOGIC STARTS HERE                      #############
+    #############               SETTERS LOGIC STARTS HERE                      #############
+    #############               SETTERS LOGIC STARTS HERE                      #############
+    #############               SETTERS LOGIC STARTS HERE                      #############
+    
+    def down_semaphore(self):
+        #sysnchornization or memorization haha..??
+        if(self.semaphore>0):
+            self.semaphore  -=1
+        else:
+            print("errie")
+
     def increase_cutoff(self):
         return 1
-    def has_product_shipped(self):
-        return False
     
-    def winner_didnot_paid_money_handler(self):
+
+
+    
+    #############               SCHEDULABLE LOGIC STARTS HERE                      #############
+    #############               SCHEDULABLE LOGIC STARTS HERE                      #############
+    #############               SCHEDULABLE LOGIC STARTS HERE                      #############
+    #############               SCHEDULABLE LOGIC STARTS HERE                      #############
+    
+    #expireation riggered, then excecute these fucntions    
+    def handle_expiration(self):
+        pass 
+
+    def handle_winner_was_a_liar(self):
         pass
-    
+
     def schedule_expiry_logic(self):
         pass
     
     def schedule_bid_won_logic(self):
+        pass
+
+
+
+    #############               NOTICE LOGIC STARTS HERE                      #############
+    #############               NOTICE LOGIC STARTS HERE                      #############
+    #############               NOTICE LOGIC STARTS HERE                      #############
+    #############               NOTICE LOGIC STARTS HERE                      #############
+        #notifications
+    def new_like_notification(self,liker):
+        Notification.objects.create_for_new_like(self.user, liker)
+    def send_notice_to_page(self):
+        pass
+    
+    def send_notice_to_news(self):
         pass
 
     
@@ -234,39 +368,23 @@ class Auction(models.Model):
             )
         print("user x created an auction Brodcast to [user_lists] users")
 
-    def get_bids_by_order(self):
-        from django.db.models import Avg
-        qs=self.bids.annotate(ratings=Avg('bidder__to__rating')).order_by('bid_amount','-ratings')
-        return qs
-    def get_youtube(self):
-        return f"https://www.youtube.com/embed/{self.youtube}?autoplay=1&mute=1&loop=1&controls=0"
+    
+
+
+    
+
+    #############               SERIALIZING  LOGIC STARTS HERE                      #############
+    #############               SERIALIZING  LOGIC STARTS HERE                      #############
+
+    def prepare_for_index_page(self,request=None):
         
-    def get_highest_bidder(self):
-        return Auction.query.get_highest_bidder(self)
+        t=self.__dict__
+        t["db"]=self
+        t["fav"]=self.favourite.filter(id=request.user.id if request else 0).exists()    
+        #print(t)
+        return t
+    
+    
 
-    def is_new_bid_okay(self,bidder,bid_amount):
-        if self.user == bidder:
-            return False
-        highest_bidding=self.get_highest_bidder()
-        
-        if(highest_bidding.user==bidder):
-            return False
-        
-        if(highest_bidding.bid_amount<=bid_amount):
-            return False
-        
-        return True
-    def __str__(self):
-        return self.user.username +" auction %s" %str(self.id)[0:4]
-
-    def total_upvotes(self):
-        return self.upvotes.count()
-
-    def get_absolute_url(self):
-        return reverse("auction_detail", args=[str(self.id)])
-
-    def has_expired(self):
-        if(self.expiry_date<= timezone.now()):
-            return False
-        return True
-
+    def prepare_for_detail_page(auction):
+        return auction

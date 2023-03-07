@@ -1,4 +1,264 @@
-<div class="tab-pane fade show" id="details">
+{% load static %}
+<div class="container">
+    <div class="product-details-slider-top-wrapper">
+        <div class="product-details-slider owl-theme owl-carousel owl-loaded owl-drag" id="sync1">
+            
+            
+            
+
+            
+            
+        <div class="owl-stage-outer"><div class="owl-stage" style="transform: translate3d(-1620px, 0px, 0px); transition: all 0s ease 0s; width: 6480px;"><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product4.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product5.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product6.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item active" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product1.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product2.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product3.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product4.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product5.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product6.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product1.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product2.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item cloned" style="width: 540px;"><div class="slide-top-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/product3.png' %}" alt="product">
+                </div>
+            </div></div></div></div><div class="owl-nav disabled"><div class="owl-prev">prev</div><div class="owl-next">next</div></div><div class="owl-dots disabled"></div><div class="owl-thumbs"></div></div>
+    </div>
+    <div class="product-details-slider-wrapper">
+        <div class="product-bottom-slider owl-theme owl-carousel owl-loaded owl-drag" id="sync2">
+            
+            
+            
+            
+            
+            
+        <div class="owl-stage-outer"><div class="owl-stage" style="transform: translate3d(0px, 0px, 0px); transition: all 0s ease 0s; width: 821px;"><div class="owl-item synced active" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/01.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item active" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/02.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item active" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/03.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/04.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/05.png' %}" alt="product">
+                </div>
+            </div></div><div class="owl-item" style="width: 136.667px;"><div class="slide-bottom-item">
+                <div class="slide-inner">
+                    <img src="{% static 'images/demo/06.png' %}" alt="product">
+                </div>
+            </div></div></div></div><div class="owl-nav disabled"><div class="owl-prev">prev</div><div class="owl-next">next</div></div><div class="owl-dots disabled"></div><div class="owl-thumbs"></div></div>
+        <span class="det-prev det-nav">
+            <i class="fas fa-angle-left"></i>
+        </span>
+        <span class="det-next det-nav active">
+            <i class="fas fa-angle-right"></i>
+        </span>
+    </div>
+    <div class="row mt-40-60-80">
+        <div class="col-lg-8">
+            <div class="product-details-content">
+                <div class="product-details-header">
+                    <h2 class="title">{{ auction.title }}</h2>
+                    <ul>
+                        <li>Listing ID: 14076242</li>
+                        <li>Item #: 7300-3356862</li>
+                    </ul>
+                </div>
+                <ul class="price-table mb-30">
+                    <li class="header">
+                        <h5 class="current">Starting Price</h5>
+                        <h3 class="price">Rs. 700.00</h3>
+                    </li>
+                    
+                </ul>
+                
+                
+                <div class="product-bid-area">
+                    
+
+                {% comment %} BID AREA FORM {% endcomment %}
+                    {% if of_type_open  %}
+                        <h3> No need to enter OTP(open auction).</h3>
+                    {% elif not of_type_open and disclosed_by_admin %}
+                        <h3> This auction has already been disclosed. </h3>
+                    {% else %}
+                        {% if bidding_not_started or in_bidding_season %}
+                            <h3> The auction is not expired yet</h3>
+
+                        {% elif bidding_season_closed  %}
+                                <h5> Please login before bidding.</h5>
+                                    <a type="button" href="{% url 'login' %}" class="custom-button">Log in</button>
+                                </form>
+
+                        {% endif %}
+                                    
+
+                    {% endif %}
+            
+
+                    
+
+
+
+                </div>
+
+>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="product-sidebar-area">
+                <div class="product-single-sidebar mb-3">
+                    
+                    {% if bidding_not_started %}
+                        <h6 class="title">This Auction Starts in:</h6>
+                        <div class="countdown">
+                            <div id="bid_counter1">0d  : 09h  : 23m  : 29s</div>
+                        </div>
+                    {% elif in_bidding_season %}
+                        <h6 class="title">This Auction Ends in:</h6>
+                        <div class="countdown">
+                            <div id="bid_counter1">0d  : 11h  : 23m  : 29s</div>
+                        </div>
+                    {% elif disclosed_by_admin %}
+                        <h6 class="title">This Auction is Ended:</h6>
+                    {% endif %}
+
+
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="product-tab-menu-area mb-40-60 mt-70-100">
+<div class="container">
+    <ul class="product-tab-menu nav nav-tabs">
+        {% if in_bidding_season or bidding_season_closed %}
+            <li>
+                <a href="#history" class="active" data-toggle="tab">
+                    <div class="thumb">
+                        <img src="{% static 'images/demo/tab3.png' %}" alt="product">
+                    </div>
+                    <div class="content">Bid History (36)</div>
+                </a>
+            </li>
+
+        {% endif %}
+
+        <li>
+            <a href="#details" class={% if bidding_not_started %}"active"{% else %}""{% endif %} data-toggle="tab">
+                <div class="thumb">
+                    <img src="{% static 'images/demo/tab1.png' %}" alt="product">
+                </div>
+                <div class="content">Description</div>
+            </a>
+        </li>
+
+
+        <li>
+            <a href="#delevery" data-toggle="tab">
+                <div class="thumb">
+                    <img src="{% static 'images/demo/tab2.png' %}" alt="product">
+                </div>
+                <div class="content">Delivery Options</div>
+            </a>
+        </li>
+        
+        <li>
+            <a href="#questions" data-toggle="tab">
+                <div class="thumb">
+                    <img src="{% static 'images/demo/tab4.png' %}" alt="product">
+                </div>
+                <div class="content">Questions </div>
+            </a>
+        </li>
+    </ul>
+</div>
+</div>
+<div class="container">
+<div class="tab-content">
+
+    {% if in_bidding_season or bidding_season_closed %}
+        <div class="tab-pane fade show active" id="history">
+            <div class="history-wrapper">
+                <div class="item">
+                    <h5 class="title">Bid History</h5>
+                    <div class="history-table-area">
+                        {% if of_type_open or disclosed_by_admin %}
+
+                        <table class="history-table" id="table_i_need">
+                            
+                            {% include "auction/history.html" %}
+
+                        </table>
+                        <div class="text-center mb-3 mt-4">
+                            <a href="#0" class="button-3">Load More</a>
+                        </div>
+
+                        {% else %}
+                            <div class="item">
+                                <h5 class="subtitle">History will be made public when auction is expired and admins do so.</h5>
+                                
+                            </div>
+                            
+
+                        {% endif %}
+                    </div>
+                
+                
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
+    <div class="tab-pane fade show{% if bidding_not_started %}active{% else %}{% endif %}" id="details">
         <div class="tab-details-content">
             <div class="header-area">
                 <h3 class="title">2012 Ford Escape Hybrid (Brooklyn, NY 11214)</h3>
@@ -132,7 +392,7 @@
             <div class="faq-wrapper">
                 <div class="faq-item">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">How to start bidding?</span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How to start bidding?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -140,7 +400,7 @@
                 </div>
                 <div class="faq-item">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">Security Deposit / Bidding Power </span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">Security Deposit / Bidding Power </span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -148,7 +408,7 @@
                 </div>
                 <div class="faq-item">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">Delivery time to the destination port </span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">Delivery time to the destination port </span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -156,7 +416,7 @@
                 </div>
                 <div class="faq-item">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">How to register to bid in an auction?</span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How to register to bid in an auction?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -164,7 +424,7 @@
                 </div>
                 <div class="faq-item open active">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">How will I know if my bid was successful?</span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How will I know if my bid was successful?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -172,7 +432,7 @@
                 </div>
                 <div class="faq-item">
                     <div class="faq-title">
-                        <img src="./assets/css/img/faq.png' %}" alt="css"><span class="title">What happens if I bid on the wrong lot?</span><span class="right-icon"></span>
+                        <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">What happens if I bid on the wrong lot?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
                         <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
@@ -182,3 +442,5 @@
         </div>
     </div>
     
+</div>
+

@@ -108,7 +108,28 @@
                         <li>Item #: 7300-3356862</li>
                     </ul>
                 </div>
-                <ul class="price-table mb-30">
+                {% if is_he_winner %}
+                    <h4>Congratulation {{request.user.username }} for winning this auction.</h4>
+
+                    <ul class="price-table mb-30">
+                    <li class="header">
+                        <h5 class="current">Your bid amount</h5>
+                        <h3 class="price">Rs. 700.00</h3>
+                    </li>
+
+                    <li>
+                        <span class="details">Collateral Amount</span>
+                        <h5 class="info">Rs. 60.00</h5>
+                    </li>
+                    
+                    <li>
+                        <span class="details">Remaining Amount</span>
+                        <h5 class="info">Rs. 640 </h5>
+                    </li>
+                </ul>
+                
+                {% else %}
+                    <ul class="price-table mb-30">
                     <li class="header">
                         <h5 class="current">Starting Price</h5>
                         <h3 class="price">Rs. 700.00</h3>
@@ -125,6 +146,8 @@
                         <h5 class="info">Rs. 50.00</h5>
                     </li>
                 </ul>
+                
+                {% endif %}
                 
                 
                 <div class="product-bid-area">
@@ -176,7 +199,21 @@
                     {% elif bidding_season_closed %}
                         <h5> Bidding session is closed.</h5>
                     {% elif disclosed_by_admin %}
-                        <h5>Auction has been completed..</h5>
+                        {% if is_he_winner %}
+                            <h5>Congratulations, you have won this auction.</h5>
+
+                            <br>
+                            <form class="product-bid-form">
+                                <div class="search-icon">
+                                    <img src="{% static 'images/demo/search-icon.png' %}" alt="product">
+                                </div>
+                                <input type="text" placeholder="Enter transaction for remaining amount">
+                                <button type="submit" class="custom-button">Submit</button>
+
+                            </form>
+                        {% else %}
+                            <h5>Auction has been completed..</h5>
+                        {% endif %}
                     {% endif %}
 
 

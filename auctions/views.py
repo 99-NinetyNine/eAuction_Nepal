@@ -186,6 +186,7 @@ class NewAuctionDetailView(View):
     seven_days_since_won_and_not_paid=False
 
     did_he_bid=False
+    is_he_winner=True
     
     def get(self,*args,**kwargs):
 
@@ -266,7 +267,7 @@ class NewAuctionDetailView(View):
         context["bidder_paid_ninty_percent"]            =       self.bidder_paid_ninty_percent
         context["seven_days_since_won_and_not_paid"]    =       self.seven_days_since_won_and_not_paid
         context["did_he_bid"]                           =       self.did_he_bid
-
+        context["is_he_winner"]                         =       self.is_he_winner
         return context
 
 
