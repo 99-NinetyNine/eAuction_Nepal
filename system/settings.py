@@ -80,14 +80,25 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Database
+#Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+# # DATABASES = {
+# #     'default': {
+# #         'ENGINE': 'django.db.backends.mysql',
+        
+# #         'NAME': 'eauction',
+# #         'USER': 'root',
+# #         'PASSWORD': '123456',
+# #         'HOST':'localhost',
+# #         'PORT':'3306',
+        
+# #     }
+# # }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -154,3 +165,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+CELERY_TIMEZONE = 'UTC'
+
+
+
+from celery.schedules import crontab
+
+from celery import shared_task
+
+
+from celery.schedules import crontab
+
+@shared_task()
+def hello():
+    print("asas")

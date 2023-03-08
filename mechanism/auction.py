@@ -13,27 +13,32 @@ from django.conf import settings
 
 from django.shortcuts import reverse
 
+from celery import shared_task
 
 import random
-from django.contrib.auth import get_user_model
-User=get_user_model()
+from mechanism.users import User
 # class Place(models.Model):
 #     city = models.CharField(max_length=100)
 #     location = PlainLocationField(based_fields=['city'], zoom=7)
-from mechanism.notification import Notification
+
 
 class AuctionManager(models.Manager):
     def get_queryset_for(self,user):
         return self.get_queryset()
     
+    def inventory_incharge_created(self,some_inventory_officer):
+        return self.get_queryset().filter(user=some_inventory_officer)
+    def waiting_for_admin(self,some_admin):
+        return self.for_index_page()
+
     def for_index_page(self):
         qs=self.get_queryset()
         rd=random.randint(0,len(qs))
         new=qs[0:rd]
         old=qs[rd:]
+        return new,old
 
-        return [n.prepare_for_index_page() for n in new],[o.prepare_for_index_page() for o in old]
-        
+
     def get_serialized_query_set(self,query_set,request,single_item=False):
         """
         returns a list of ["auction instance","is_liked","is_disliked","is_favourite"]
@@ -71,7 +76,7 @@ class AuctionManager(models.Manager):
             return auction.not_settled.get_current_winner()
         
         elif auction.exists_in_live_bucket():
-            if(auction.of_type_open()):
+            if(auction.is_type_open()):
                 return auction.bids.all().order_by("-bid_amount").first()
             else:
                 None
@@ -161,11 +166,11 @@ class Auction(models.Model):
         print("inconsistent",e)
 
     def pop_from_admin_waiting_bucket(self):
-        self.admin_waiting.delete()
+        self.waiting_admin.delete()
         
     def exists_in_admin_waiting_bucket(self):
         try:
-            admin_waiting_bucket=self.admin_waiting
+            admin_waiting_bucket=self.waiting_admin
         except Exception as e:
             print(e)
             return False
@@ -255,16 +260,19 @@ class Auction(models.Model):
     def is_type_open(self):
         return self.open_close #open=1,close=0
     def does_he_have_bid(self,some_user):
-        ret1=False
-        ret2=None
+        exists=False
+        amount=None
         tuple=None
         qs= self.bids.filter(bidder=some_user)
         if qs.exists():
-            ret1=True
             tuple=qs.first()
-            bid_amount=tuple.bid_amount
+            amount=tuple.bid_amount
+            
+            if(amount>0):
+                exists=True
+            print("your bdidis",amount)
         
-        return ret1, bid_amount,tuple
+        return exists, amount,tuple
 
     def disclosed_by_admins(self):
         try:
@@ -297,21 +305,21 @@ class Auction(models.Model):
 
     def adminA_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
-            return self.admin_waiting.semaphore<3
+            return self.waiting_admin.semaphore<3
         return False
     
     def adminB_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
-            return self.admin_waiting.semaphore<2
+            return self.waiting_admin.semaphore<2
         return False
     
     def adminC_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
-            return self.admin_waiting.semaphore<1
+            return self.waiting_admin.semaphore<1
         return False
 
     def is_new_bid_okay(self,bid_amount,bidder=None):
-        if(not self.of_type_open()):
+        if(not self.is_type_open()):
             return True
         highest_bidding=self.get_highest_bidder()
         
@@ -344,7 +352,13 @@ class Auction(models.Model):
     def __str__(self):
         return self.user.username +" auction %s" %str(self.id)[0:4]
 
-    
+    def get_number_of_bids(self):
+        
+        try:
+            return self.bids.all().count()
+        except Exception as e:
+            print(e)
+            return 0
     def get_bids_by_order(self):
         from django.db.models import Avg
         qs=self.bids.annotate(ratings=Avg('bidder__to__rating')).order_by('bid_amount','-ratings')
@@ -385,7 +399,7 @@ class Auction(models.Model):
     
     def some_admin_entered_otp(self):
         if self.exists_in_admin_waiting_bucket() \
-            and self.admin_waiting.down_semaphore():
+            and self.waiting_admin.down_semaphore():
             
             return True
         
@@ -405,18 +419,25 @@ class Auction(models.Model):
     
     #expireation riggered, then excecute these fucntions    
     @staticmethod
-    def schedule_expiry_logic(self):
+    @shared_task
+    ##@###haha critical section i love deadlocks!!
+    def beat_beat(self):
         #run every 10 minutes
         from mechanism.auction_live import LiveAuction
+        
+        
         for tuple in LiveAuction.objects.all():
             if(tuple.time_to_expire()):
                 print("tuple expired,now handling it")
-                tuple.auction.handle_auction_expiration()
+                #tuple.auction.handle_auction_expiration()
         
         ##noe same goes for 7 days logic
         from mechanism.auction_not_settled import NotSettledAuction
+        print("ok import fine")
         for tuple in NotSettledAuction.objects.all():
+            
             if tuple.seven_days_elapsed():
+
                 tuple.auction.handle_winner_was_a_liar()
 
     def handle_auction_expiration(self):
@@ -465,6 +486,7 @@ class Auction(models.Model):
     #############               NOTICE LOGIC STARTS HERE                      #############
     #notifications
     def new_like_notification(self,liker):
+        from .notification import Notification
         Notification.objects.create_for_new_like(self.user, liker)
     def send_notice_to_page(self):
         print("notify this happednd,send_notice_to_news")
@@ -474,6 +496,9 @@ class Auction(models.Model):
 
     def notify_to_winner(self,winner):
         print("notify this happednd,notify_to_winner")
+
+    def notify_that_auction_is_created(self):
+        print(" notify_that_auction_is_created")
 
     def notify_that_auction_expired(self):
         print("auction has expired please notify to , bid winner, notice page and others")

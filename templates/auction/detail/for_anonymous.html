@@ -18,37 +18,33 @@
                     </li>
                     
                 </ul>
+            
+            </div>
                 
-                
-                <div class="product-bid-area">
+            <div class="product-bid-area">
                     
 
-                {% comment %} CHECK {% endcomment %}
+                    {% comment %} CHECK {% endcomment %}
                     {% if exists_in_dead_bucket %}
                         <h3> This auction has has not started yet. </h3>
                     {% elif exists_in_admin_waiting_bucket or exists_in_not_settled_bucket  or exists_in_settled_bucket %}
                         <h3> This auction has already been ended. </h3>
                         {% if exists_in_admin_waiting_bucket %}<h3> Admins are announcing winner. </h3>{% endif %}
                     {% elif exists_in_live_bucket  %}
-                            <h5> Please login before bidding.</h5>
+                            <h5> Please login as bidder before bidding.</h5>
                                 <a type="button" href="{% url 'login' %}" class="custom-button">Log in</button>
                             </form>
 
                     {% endif %}
                                     
-                   
-
-
-
-                </div>
-
->
             </div>
+        
         </div>
+        
         {% include "auction/detail/right_side.html" %}
     </div>
-
+        
+        
 </div>
-
 
 {% include "auction/detail/tabs.html" %}

@@ -11,8 +11,10 @@ class BidDeleteForm(forms.Form):
     def clean(self):
         cleaned_data=super().clean()
         bid=cleaned_data.get("bid")
+        self.auction=None
         try:
             self.bid=Bid.objects.get(id=bid)
+            self.auction=self.bid.auction
         except Exception as e:
             raise ValidationError("The bid is not found")
 
@@ -20,9 +22,11 @@ class BidDeleteForm(forms.Form):
         try:
             if not self.bid.bidder==some_user:
                 raise ValidationError("The bidder is not nice.")
-            else:
-                self.bid.delete()
             
+        
+            self.bid.delete()
+            return True
+
         except ValidationError as v:
             self.add_error("bid",v)
             return False
@@ -33,6 +37,13 @@ class BidDeleteForm(forms.Form):
 
 
     
+    
+    def get_err_msg(self):
+        m=""
+        for error_list in self.errors.values():
+            for error in error_list:
+                m+="\n"+error
+        return m
 
 class BidForm(forms.Form):
     auction=forms.UUIDField(widget = forms.HiddenInput())
@@ -60,14 +71,19 @@ class BidForm(forms.Form):
         
 
 
-    def save(self,bidder,commit=False):
+    def save(self,bidder,commit=True):
         ##my own haha
         try:
-            if(not auction.bidder_paid_initial(bidder)):
+            if(not self.auction.bidder_paid_initial(bidder)):
                 raise ValidationError(f"Please  deposit 10% of starting price before bidding.")
+            exists, amount,tuple=self.auction.does_he_have_bid(bidder)
+            if(tuple):
+                tuple.bid_amount=self.cleaned_data["bid_amount"]
+                tuple.save()
+            else:
+                bid=Bid.objects.create(auction=self.auction,bidder=bidder,bid_amount=self.cleaned_data["bid_amount"])
+                bid.save()
 
-            bid=Bid.objects.create(auction=self.auction,bidder=bidder,bid_amount=self.cleaned_data["bid_amount"])
-            bid.save(commit=commit)
             return bid
         except ValidationError as v:
             self.add_error("auction",v)
@@ -89,6 +105,7 @@ class InitialPayForm(forms.Form):
     auction         =   forms.UUIDField(widget = forms.HiddenInput())
     bail_trn_id     =   forms.CharField(max_length=100,label="Enter deposit id (10% of amount)")
 
+    
     def clean(self):
         cleaned_data = super().clean()
         auction = cleaned_data.get("auction")
@@ -109,7 +126,7 @@ class InitialPayForm(forms.Form):
                 raise ValidationError(f"Why are you paying again ??")
 
             bid=Bid.objects.create(auction=self.auction,bidder=bidder,bail_trn_id=self.cleaned_data["bail_trn_id"])
-            bid.save(commit=commit)
+            bid.save()
             return bid
 
         except ValidationError as v:

@@ -15,8 +15,7 @@ from django.shortcuts import reverse
 
 
 
-from django.contrib.auth import get_user_model
-User=get_user_model()
+from mechanism.users import User
 
 from mechanism.auction import Auction
 
@@ -81,7 +80,7 @@ class Bid(models.Model):
         bidder=instance.bidder
         auction=instance.auction
 
-        from mechanism.notification import Notification
+        
         Notification.objects.create_for_new_bid(
             receiver=owner,
             bidder=bidder,

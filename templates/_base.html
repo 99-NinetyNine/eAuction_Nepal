@@ -64,12 +64,13 @@
                         </li>                         {% endcomment %}
                         
                         <li>
-                        {% if request.user.is_anonymous %}
+                        {% if request.user.is_authenticated is False  %}
                             <a href="{% url 'login' %}" class="user-button"><i class="flaticon-user"></i></a>
                             <h6>Anonymous</h6>
+            
                         {% elif request.user.is_inventory_incharge %}
                             <h6>Inventory Incharge</h6>
-                        {% elif request.user.is_one_of_admin %}
+                        {% elif request.user.is_one_of_admins %}
                             <h6>Admin</h6>
                         {% elif request.user.is_bidder %}
                             <a href="{% url 'profile_view' %}" class="user-button"><i class="flaticon-user"></i></a>
@@ -93,7 +94,7 @@
                         <li><a href="{% url 'home' %}">Notice</a></li>
 
                         <li>
-                        {% if request.user.is_inventory_incharge_pfficer %}
+                        {% if request.user.is_inventory_incharge_officer %}
                             <a href="{% url 'create_auction' %} ">Create Auction</a>
                         
                         {% elif request.user.is_bidder %}
@@ -204,14 +205,16 @@
 
             </ul>
             
-            
+
             {% if messages %}
                 <ul class="messages">
                     {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}><span>{{ message }}</span></li>
+                    <a href="#"><li style="color:white;" ><span>{{ message }}</span></li></a>
                     {% endfor %}
                 </ul>
             {% endif %}
+            <a href="#"><li class=""><span>Message</span></li></a>
+
         </div>
         <div class="bg_img hero-bg bottom_center" data-background="{% static 'images/demo/hero-bg.png' %}"style="background-image: url(&quot;{% static 'images/demo/hero-bg.png' %}&quot;);"></div>
     </div>

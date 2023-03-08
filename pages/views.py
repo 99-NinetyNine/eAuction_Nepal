@@ -12,11 +12,12 @@ from django.http import(
 ) 
 from django.contrib import messages
 
-
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+)
 from django.contrib.auth import get_user_model
 User=get_user_model()
 
-from mechanism.models import Rating
 from mechanism.auction import Auction
 from mechanism.notification import Notification
 from mechanism.bidding import Bid
@@ -39,7 +40,7 @@ class ProfileDetailView(LoginRequiredMixin,View):
     template_name='pages/profile.html'
 
     def get(self,*a,**k):
-        return render(self,self.template_name,{})
+        return render(self.request,self.template_name,{})
 
 
     

@@ -8,10 +8,9 @@ import datetime
 import uuid
 import random
 
-from django.contrib.auth import get_user_model
-User=get_user_model()
+from mechanism.users import User
 
-from mechanism.notification import Notification
+
 from mechanism.auction import Auction
 
 

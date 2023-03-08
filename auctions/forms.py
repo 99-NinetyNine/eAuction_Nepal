@@ -17,20 +17,27 @@ class AuctionForm(forms.ModelForm):
             "title",
             "description",
             "youtube",
-            "thumbnail",
+            "open_close",
             "price_min_value",
             "price_max_value",
             "expiry_date",
+            "thumbnail",
+            
             "pdf",
+            
 
         ]
 
         labels = {
-            "title": "Add Title",
-            "description":"Add description eg.4 aana ",
-            "price_min_value":"Minimun Price:",
-            "price_max_value":"Maximum price",
-            "expiry_date":"Choose expiry date:",
+            "title"                 :       "Enter title of auction:",
+            "description"           :       "Enter description eg.4 aana ",
+            "price_min_value"       :       "Enter starting bidding amount:",
+            "price_max_value"       :       "Enter maximum amount",
+            "youtube"               :       "Enter youtube video URL",
+            "thumbnail"             :       "Enter thumbnail of auction",
+            "pdf"                   :       "Enter pdf of notice",
+            "open_close"            :       "Mark the checkbox, If auction is of Type -> Open",
+            "expiry_date"           :       "Enter date when auction closes:",
 
         }
     def clean_youtube(value):

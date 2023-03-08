@@ -1,4 +1,7 @@
 {% extends '_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
 {% block title %}
 
 {% endblock title %}
@@ -17,6 +20,14 @@
                     <span>Sign In</span>
                 </li>
             </ul>
+
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li style="color:white;" ><span>{{ message }}</span></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
         <div class="bg_img hero-bg bottom_center" data-background="/static/images/demo/hero-bg.png" style="background-image: url(&quot;/static/images/demo/hero-bg.png&quot;);"></div>
     </div>
@@ -49,7 +60,7 @@
                     <div class="or">
                         <span>Or</span>
                     </div>
-                    <form class="login-form" method="POST" action="{% url 'login' %}">
+                    <form class="" method="POST" action="{% url 'login' %}">
                         {% csrf_token %}
                         {{ login_form|crispy }}
                         <div class="form-group mb-0">

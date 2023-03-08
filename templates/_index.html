@@ -18,10 +18,11 @@
             {% if messages %}
                 <ul class="messages">
                     {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}><span>{{ message }}</span></li>
+                    <li style="color:white;" ><span>{{ message }}</span></li>
                     {% endfor %}
                 </ul>
             {% endif %}
+            
         </div>
         <div class="bg_img hero-bg bottom_center" data-background="{% static 'images/demo/hero-bg.png' %}"style="background-image: url(&quot;{% static 'images/demo/hero-bg.png' %}&quot;);"></div>
     </div>
@@ -30,7 +31,7 @@
     {% endblock hero %}
 
 {% block content %}
-    {% if request.user.is_anonymous %}
+    {% if not request.user.is_authenticated  %}
         {% include "index/for_anonymous.html" %}
     {% elif request.user.is_inventory_incharge %}
         {% include "index/for_inventory_incharge.html" %}

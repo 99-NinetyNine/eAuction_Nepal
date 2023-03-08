@@ -7,12 +7,12 @@ from django.utils import timezone
 import datetime
 import uuid
 
+from django.http import Http404, HttpResponseRedirect
 
 
 from django.shortcuts import reverse
 
-from django.contrib.auth import get_user_model
-User=get_user_model()
+from mechanism.users import User
 
 
 class NotificationType(models.TextChoices):
@@ -108,7 +108,7 @@ class Notification(models.Model):
         msg= msg+" "+"notification %s" %str(self.id)[0:4]
         return msg
     def get_absolute_url(self):
-        return reverse('notification_detail', args=[str(self.id)])
+        return HttpResponseRedirect(reverse('notification_detail', args=[str(self.id)]))
 
     #todo 
     #notification

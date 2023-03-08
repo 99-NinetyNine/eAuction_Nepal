@@ -14,7 +14,5 @@ urlpatterns = [
     path('handle/bid/',views.BidHandleView.as_view(),name='handle_bid'),
     path('pending/bids/',views.BidPendingList.as_view(),name='bid_pending_lists'),
     
-    ##forms
-    path("test/",views.testing,name="a")
     
 ]

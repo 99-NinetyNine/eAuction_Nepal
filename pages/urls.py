@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     
     path('profile/',views.ProfileDetailView.as_view(),name='profile_view'),
-    path('account/settings/',views.AccountSettingView.as_view(),name='account_settings'),
     path('change/profile/',views.ProfileEditView.as_view(),name='change_profile'),
     
     path('rate/user/',views.RateUser,name="rate_user"),

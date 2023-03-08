@@ -5,7 +5,7 @@ from django.shortcuts import(
 ) 
 
 
-    
+from django.http import Http404, HttpResponseRedirect
 
 
 from django.urls import reverse_lazy,reverse
@@ -84,11 +84,11 @@ class AdminOtpView(LoginRequiredMixin,View):
         form=OtpFormForDisclose(self.request.POST)
         if form.is_valid():
             form.handle_otp()
-            return reverse(form.auction.get_absolute_url())
+            return HttpResponseRedirect(reverse(form.auction.get_absolute_url()))
         
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
-        return reverse("home")
+        return HttpResponseRedirect(reverse("home"))
 
         
         
@@ -98,7 +98,7 @@ admin_otp_view=AdminOtpView.as_view()
 
 
 
-class HomeView(LoginRequiredMixin,View):
+class HomeView(View):
     
     newly_listed_auctions=None
     not_newly_listed_auctions=None
@@ -106,10 +106,11 @@ class HomeView(LoginRequiredMixin,View):
     auctions_waiting_for_admin=None
     
     def get(self,*args,**kwargs):
+        print(self.request.user.is_authenticated)
         
-        if self.request.user.is_anonymous():
+        if not self.request.user.is_authenticated:
             self.prepare_auctions_for_anonymous()
-        elif self.request.user.is_inventory_incharge():
+        elif self.request.user.is_inventory_incharge_officer():
             self.prepare_auctions_for_inventory_incharge()
         elif self.request.user.is_one_of_admins():
             self.prepare_auctions_for_one_of_admins()
@@ -134,13 +135,14 @@ class HomeView(LoginRequiredMixin,View):
         context["newly_listed_auctions"]                =   self.newly_listed_auctions
         context["not_newly_listed_auctions"]            =   self.not_newly_listed_auctions
         context["auctions_inventory_incharge_created"]  =   self.auctions_inventory_incharge_created
-        context["auctions_waiting_for_admincontext"]    =   self.auctions_waiting_for_admincontext
+        context["auctions_waiting_for_admincontext"]    =   self.auctions_waiting_for_admin
+        
         return context
     
     
 
 def AuctionCreate(request):
-    if(not request.user.is_inventory_incharge()):
+    if(not request.user.is_inventory_incharge_officer()):
         return render(request,"auction/form/create.html", {"not_inventory_incharge":True,})
         
     if request.method == "POST":
@@ -150,7 +152,7 @@ def AuctionCreate(request):
             auction.user = request.user
             auction.save()
             
-            auction.auction_created_alert()
+            auction.notify_that_auction_is_created()
             auction.push_to_live_bucket()
             messages.success(request, "Post has been successfully created.")
             return redirect("home")
@@ -244,7 +246,7 @@ class NewAuctionDetailView(View):
     bidder_deposited_ten_percent =False
     
     did_he_bid=False
-    is_he_winner=True
+    is_he_winner=False
     
     bidder_paid_ninty_percent=False
     seven_days_since_won_and_not_paid=False
@@ -269,10 +271,10 @@ class NewAuctionDetailView(View):
         self.auction=get_object_or_404(Auction,id=self.pk)
         
         self.seeing_by_admins       =   False
-        self.seeing_by_bidder       =   True
+        self.seeing_by_bidder       =   False
         self.seeing_by_anonynous    =   False
         ##
-        self.of_type_open           =   self.auction.is_type_open()
+        self.is_type_open           =   self.auction.is_type_open()
         ##doing this, cause we will having fun when in REACT if we send 
         #auction object and write auction.exists_in() 
 
@@ -281,7 +283,7 @@ class NewAuctionDetailView(View):
         self.exists_in_admin_waiting_bucket     =   self.auction.exists_in_admin_waiting_bucket()
         self.exists_in_not_settled_bucket       =   self.auction.exists_in_not_settled_bucket()
         self.exists_in_settled_bucket           =   self.auction.exists_in_settled_bucket()
-        self.exists_in_re_schedule_bucket       =   self.exists_in_re_schedule_bucket()
+        self.exists_in_re_schedule_bucket       =   self.auction.exists_in_re_schedule_bucket()
         
         if(self.exists_in_admin_waiting_bucket):
             self.adminA_entered_otp  =   self.auction.adminA_logged_in()
@@ -292,13 +294,14 @@ class NewAuctionDetailView(View):
             
             self.handle_anonymous_user()
 
-        else:
-            if(self.request.user.is_one_of_admins()):
+        elif(self.request.user.is_one_of_admins()):
+            self.handle_admins()
                 
-                self.handle_admins()
-            
-            else:
-                self.handle_bidder()
+        elif(self.request.user.is_bidder()):
+            self.handle_bidder()
+                
+        else:
+            self.handle_anonymous_user()
 
 
         #common data, max price,len(bidders),etc
@@ -329,7 +332,7 @@ class NewAuctionDetailView(View):
                 
                 if self.did_he_bid:
                     self.bid_bidding_form=BidForm(data={"auction":self.auction.id,"bid_amount":self.amount_he_bid})
-                    self.bid_deleting_form=BidDeleteForm(data={"bid":self.bid_tuple.id,})
+                    self.bid_deleting_form=BidDeleteForm(data={"bid":bid_tuple.id,})
 
                 else:
                     self.bid_bidding_form=BidForm(data={"auction":self.auction.id,"bid_amount":0})
@@ -344,7 +347,7 @@ class NewAuctionDetailView(View):
 
     def get_context_data(self):
         context={}
-        if(self.of_type_open or self.disclosed_by_admins):
+        if(self.is_type_open or self.auction.exists_in_settled_bucket()):
             bids=self.auction.get_bids_by_order()
         else:
             bids=[]
@@ -355,7 +358,7 @@ class NewAuctionDetailView(View):
         context["seeing_by_admins"]                     =       self.seeing_by_admins
         context["seeing_by_bidder"]                     =       self.seeing_by_bidder
         context["seeing_by_anonynous"]                  =       self.seeing_by_anonynous
-        context["of_type_open"]                         =       self.of_type_open
+        context["is_type_open"]                         =       self.is_type_open
         context["exists_in_dead_bucket"]                =       self.exists_in_dead_bucket
         context["exists_in_live_bucket"]                =       self.exists_in_live_bucket
         context["exists_in_admin_waiting_bucket"]       =       self.exists_in_admin_waiting_bucket
@@ -377,6 +380,7 @@ class NewAuctionDetailView(View):
         context["bid_deleting_form"]                    =       self.bid_deleting_form
         context["auction"]                              =       self.auction
 
+        pprint(context)
         return context
 
 

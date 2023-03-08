@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from mechanism.models import (
+from mechanism.users import (
     Rating,
 )
 

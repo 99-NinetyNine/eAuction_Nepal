@@ -40,7 +40,7 @@
                         <h5 class="current">Starting Price</h5>
                         <h3 class="price">Rs. 700.00</h3>
                     </li>
-                    {% if of_type_open %}
+                    {% if is_type_open %}
 
                         <li>
                             <span class="details">Current Maximum</span>
@@ -62,7 +62,7 @@
                 {% comment %} BID AREA FORM {% endcomment %}
                     {% if exists_in_dead_bucket or exists_in_live_bucket %}
                         {% if not bidder_deposited_ten_percent %}
-                            <form class="product-bid-form" method="POST" action="{% url 'apply_bid' %}">
+                            <form class="product-bid-form" method="POST" action="{% url 'pay_initial' %}">
                                 {% csrf_token %}
                                 {{ bidder_paying_initial_form|crispy }}
                                 <button type="submit" class="custom-button">Submit</button>
@@ -71,14 +71,14 @@
                         
                         {% else %}
                             {% if did_he_bid %}
-                                <form class="product-bid-form" method="POST" action="{% url 'apply_bid' %}">
+                                <form class="product-bid-form" method="POST" action="{% url 'edit_bid' %}">
                                     {% csrf_token %}
                                     {{ bid_bidding_form|crispy }}
                                 
                                     <button type="submit" class="custom-button">Change Bid</button>
                                 </form>
 
-                                <form class="product-bid-form" method="POST" action="{% url 'apply_bid' %}">
+                                <form class="product-bid-form" method="POST" action="{% url 'delete_bid' %}">
                                     {% csrf_token %}
                                     {{ bid_deleting_form|crispy }}
                                 
@@ -158,61 +158,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="product-sidebar-area">
-                <div class="product-single-sidebar mb-3">
-                    
-                    
-                    {% if exists_in_dead_bucket %}
-                        <h6 class="title">This Auction Starts in:</h6>
-                        <div class="countdown">
-                            <div id="bid_counter1">0d  : 09h  : 23m  : 29s</div>
-                        </div>
-                    {% elif exists_in_live_bucket %}
-                        <h6 class="title">This Auction Ends in:</h6>
-                        <div class="countdown">
-                            <div id="bid_counter1">0d  : 11h  : 23m  : 29s</div>
-                        </div>
-                    {% elif exists_in_not_settled_bucket %}
-                        <h6 class="title">This Auction is Ended:</h6>
-                    {% endif %}
-
-
-                    <div class="side-counter-area">
-                        <div class="side-counter-item">
-                            <div class="thumb">
-                                <img src="{% static 'images/demo/icon1.png' %}" alt="product">
-                            </div>
-                    
-                            <div class="content">
-                                <h3 class="count-title"><span class="counter">61</span></h3>
-                                <p>Active Bidders</p>
-                            </div>
-                    
-                        </div>
-                        <div class="side-counter-item">
-                            <div class="thumb">
-                                <img src="{% static 'images/demo/icon2.png' %}" alt="product">
-                            </div>
-                            <div class="content">
-                                <h3 class="count-title"><span class="counter">203</span></h3>
-                                <p>Watching</p>
-                            </div>
-                        </div>
-                        <div class="side-counter-item">
-                            <div class="thumb">
-                                <img src="{% static 'images/demo/icon3.png' %}" alt="product">
-                            </div>
-                            <div class="content">
-                                <h3 class="count-title"><span class="counter">82</span></h3>
-                                <p>Total Bids</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% comment %} <a href="#0" class="cart-link">View Shipping, Payment &amp; Auction Policies</a> {% endcomment %}
-            </div>
-        </div>
+        {% include 'auction/detail/right_side.html' %}
     </div>
 
 </div>

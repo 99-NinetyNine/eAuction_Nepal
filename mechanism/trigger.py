@@ -1,6 +1,8 @@
 from celery import shared_task
 
 
+from celery.schedules import crontab
+
 @shared_task()
-def hello_dodo(x):
-    print("beat beat",x)
+def hello():
+    print("asas")

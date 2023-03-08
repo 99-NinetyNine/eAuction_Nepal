@@ -22,6 +22,7 @@ class SignUpForm(forms.Form):
     first_name      =   forms.CharField(max_length=50,label="Enter your first name")
     last_name       =   forms.CharField(max_length=50,label="Enter your last name")
     username        =   forms.CharField(max_length=50,label="Enter your username")
+    email           =   forms.EmailField(max_length=50,label="Enter your email")
     password        =   forms.CharField(max_length=50,label="Enter your password")
     phone_num       =   forms.CharField(max_length=50,label="Enter your phone number")
     date_of_birth   =   forms.CharField(max_length=50,label="Enter your date of birth")
@@ -33,10 +34,12 @@ class SignUpForm(forms.Form):
                 first_name     =    self.cleaned_data.get("first_name"),
                 last_name      =    self.cleaned_data.get("last_name"),
                 username       =    self.cleaned_data.get("username"),
-                password       =    self.cleaned_data.get("password"),
+                email          =    self.cleaned_data.get("email"),
                 phone_num      =    self.cleaned_data.get("phone_num"),
                 date_of_birth  =    self.cleaned_data.get("date_of_birth"),
             )
+            user.set_password(self.cleaned_data.get("password"))
+            user.save()
             return user
         except Exception as e:
             print(e)
@@ -51,7 +54,7 @@ class SignUpForm(forms.Form):
         return m
 
 
-class LogInForm(forms.Form):
+class LoginForm(forms.Form):
     username        =   forms.CharField(max_length=50,label="Enter your username")
     password        =   forms.CharField(max_length=50,label="Enter your password")
     

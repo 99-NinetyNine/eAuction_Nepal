@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import (
 )
 from django.contrib import messages
 
-
+from django.http import Http404, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.http import(
     HttpResponse,
@@ -35,21 +35,25 @@ from mechanism.bidding import Bid
 
 from .forms import (
     BidForm,
+    BidDeleteForm,
     InitialPayForm,
     FinalPayForm,
 )
 class PayFinalView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
-        form=InitialPayForm(self.request.POST)
+        form=FinalPayForm(self.request.POST)
         if form.is_valid():
-            form.save(bidder=self.request.user)
-            error=form.get_err_msg()
-            messages.add_message(self.request, messages.ERROR, error)
-            return reverse(form.auction.get_absolute_url())
-    
+            if form.save(bidder=self.request.user):
+                
+                messages.add_message(self.request, messages.ERROR, "Your deposit ID has been received. You can now start bidding.")
+                return HttpResponseRedirect(form.auction.get_absolute_url())
+
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
-        return reverse("home")
+        if form.auction:
+            return HttpResponseRedirect(form.auction.get_absolute_url())
+        
+        return HttpResponseRedirect(reverse("home"))
 
     
 pay_final_view=PayFinalView.as_view()
@@ -58,16 +62,16 @@ pay_final_view=PayFinalView.as_view()
 
 class PayInitialView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
-        form=FinalPayForm(self.request.POST)
+        form=InitialPayForm(self.request.POST)
         if form.is_valid():
             form.save(bidder=self.request.user)
-            error=form.get_err_msg()
-            messages.add_message(self.request, messages.ERROR, error)
-            return reverse(form.auction.get_absolute_url())
-    
+            messages.add_message(self.request, messages.ERROR, "Your deposit ID has been received. You can now start bidding.")
+            return HttpResponseRedirect(form.auction.get_absolute_url())
+        print(form)
+        print("we are at rror")
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
-        return reverse("home")
+        return HttpResponseRedirect(reverse("home"))
 
 pay_initial_view=PayInitialView.as_view()
 
@@ -83,13 +87,21 @@ class BidCreateView(LoginRequiredMixin,View):
 
         if(form.is_valid()):
             bid=form.save(bidder=self.request.user)
-            bid.bid_created_alert()
-            return reverse(bid.auction.get_absolute_url())
+            if(bid):
+                messages.add_message(self.request, messages.ERROR, "Your bid is placed.")
+                return HttpResponseRedirect(form.auction.get_absolute_url())
+            else:
+                messages.add_message(self.request, messages.ERROR, "We couldnot place your bid.")
+                return HttpResponseRedirect(form.auction.get_absolute_url())
+
             
         
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
-        return reverse("home")
+        if form.auction:
+            return HttpResponseRedirect(form.auction.get_absolute_url())
+        
+        return HttpResponseRedirect(reverse("home"))
 
 
 class BidUpdateView(LoginRequiredMixin,View):
@@ -98,25 +110,28 @@ class BidUpdateView(LoginRequiredMixin,View):
         form=BidForm(self.request.POST)
         if(form.is_valid()):
             bid=form.save(bidder=self.request.user,commit=True)
-            return reverse(form.auction.get_absolute_url())
+            return HttpResponseRedirect(form.auction.get_absolute_url())
     
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
 
-        return reverse("home")
+        return HttpResponseRedirect(reverse("home"))
 
 
 class BidDeleteView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
-        form=BidForm(self.request.POST)
+        form=BidDeleteForm(self.request.POST)
         if(form.is_valid() and form.delete(self.request.user)):
             messages.add_message(self.request, messages.SUCCESS, "The bid is deleted.")
+            return HttpResponseRedirect(form.auction.get_absolute_url())
         else:
             error=form.get_err_msg()
             messages.add_message(self.request, messages.ERROR, error)
-            return reverse(bid.auction.get_absolute_url())
+            if form.auction:
+                return HttpResponseRedirect(form.auction.get_absolute_url())
+            
         
-        return reverse("home")
+        return HttpResponseRedirect(reverse("home"))
 
 
 

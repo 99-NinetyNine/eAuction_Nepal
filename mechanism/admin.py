@@ -4,10 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from simple_auth.forms import BidderCreationForm, BidderChangeForm
 
-from .models import (
-    User,
-    Rating,
-)
+from .models import *
 
 class BidUserAdmin(UserAdmin):
     #id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -20,4 +17,13 @@ class BidUserAdmin(UserAdmin):
     
 
 admin.site.register(User, BidUserAdmin)
-admin.site.register(Rating)
+
+
+admin.site.register(Auction)
+admin.site.register(LiveAuction)
+admin.site.register(AdminWaitingAuction)
+admin.site.register(NotSettledAuction)
+admin.site.register(SettledAuction)
+admin.site.register(RescheduleAuction)
+admin.site.register(Bid)
+admin.site.register(LiarBidder)

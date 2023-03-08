@@ -13,7 +13,7 @@ from django.shortcuts import reverse
 import random
 
 
-from mechanism.notification import Notification
+
 from mechanism.auction import Auction
 
 class LiveAuction(models.Model):
@@ -29,5 +29,10 @@ class LiveAuction(models.Model):
         return f"live auction {str(self.auction.id)[0:4]}"
 
     def time_to_expire(self):
-        return True
-        ##return self.auction.pub_dateTrue
+        expiry_time = timezone.localtime(self.auction.expiry_date)
+        now = timezone.localtime(timezone.now())
+        time_diff = (expiry_time - now).total_seconds()
+        if time_diff <= 5:
+            print("oh no u are expired")
+            return True
+        return False

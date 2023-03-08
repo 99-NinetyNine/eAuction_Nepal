@@ -26,10 +26,10 @@
                     
 
                     {% comment %} BID check FORM {% endcomment %}
-                    {% if of_type_open  %}
+                    {% if is_type_open  %}
                         <h3> No need to enter OTP(open auction).</h3>
                     {% endif %}
-                    {% if not of_type_open and exists_in_not_settled_bucket %}
+                    {% if not is_type_open and exists_in_not_settled_bucket %}
                         <h3> This auction has already been disclosed. </h3>
                     {% endif %}
                     {% if exists_in_live_bucket or exists_in_dead_bucket %}
