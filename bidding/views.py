@@ -126,7 +126,7 @@ class BidDeleteView(LoginRequiredMixin,View):
 
 class BidPendingList(View):
     context_object_name="bids"
-    template_name='bid/list.html'
+    template_name='pages/my_bids.html'
 
     def get(self,request,*args,**kwargs):
         context=self.get_context_data()

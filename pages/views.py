@@ -34,27 +34,12 @@ class ContactView(View):
 contact_view=ContactView.as_view()
 
 
-class ProfileDetailView(generic.ListView):
-    model=User
-    context_object_name="auctions"
-    dest_user=None
+class ProfileDetailView(LoginRequiredMixin,View):
+    
+    template_name='pages/profile.html'
 
-    template_name='pages/profile_view.html'
-
-    def get_queryset(self):
-        pk = self.kwargs.get("pk")
-        try:
-            self.dest_user=User.objects.get(id=pk)
-        except:
-            self.dest_user=self.request.user
-        estates=Auction.objects.filter(user=self.dest_user)
-        return Auction.query.get_serialized_query_set(estates,self.request)
-
-    def get_context_data(self,**kwargs):
-        context=super().get_context_data(**kwargs)
-        context['user'] = self.dest_user
-        
-        return context
+    def get(self,*a,**k):
+        return render(self,self.template_name,{})
 
 
     
@@ -71,6 +56,8 @@ class ProfileEditView(generic.UpdateView):
 
     def get_object(self):
         return User.objects.get(id=self.request.user.id)
+
+
 
 def RateUser(request):
     context_object_name="rating_form"
@@ -135,8 +122,6 @@ class VerifyPhone(generic.CreateView):
     ]
 
 
-class AccountSettingView(generic.TemplateView):
-    template_name="pages/account_setting.html"
 
 class SearchUser(generic.View):
     template_name="pages/search_results.html"
