@@ -25,13 +25,17 @@ class NotSettledAuction(models.Model):
         editable=False)
     auction=models.OneToOneField(Auction,on_delete=models.CASCADE,related_name="not_settled")
     winner_index=models.IntegerField(default=0,blank=True,null=True)
-
+    arrived_on=models.DateTimeField(auto_now=True,null=True)
 
     def __str__(self):
-        return f"auction {str(self.auction.id)[0:4]}, just won by={self.winner.username}"
+        return f"auction {str(self.auction.id)[0:4]}, just won by={self.get_current_winner().bidder.username}"
+
 
     def seven_days_elapsed(self):
-        return True
+        now = timezone.now()
+        delta = now - self.arrived_on
+        return delta.days>7
+
     
     def get_current_winner(self):
         bids=self.auction.bids.all().order_by("-bid_amount")

@@ -70,7 +70,7 @@ class AuctionManager(models.Manager):
 
 
     def get_highest_bidder(self,auction):
-        if auction.exists_in_admin_waiting_bucket() or admin.exists_in_dead_bucket() or admin.exists_in_re_schedule_bucket():
+        if auction.exists_in_admin_waiting_bucket() or auction.exists_in_dead_bucket() or auction.exists_in_re_schedule_bucket():
             return None
         if auction.exists_in_not_settled_bucket():
             return auction.not_settled.get_current_winner()
@@ -306,17 +306,17 @@ class Auction(models.Model):
     def adminA_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
             return self.waiting_admin.semaphore<3
-        return False
+        return True
     
     def adminB_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
             return self.waiting_admin.semaphore<2
-        return False
+        return True
     
     def adminC_logged_in(self):
         if(self.exists_in_admin_waiting_bucket()):
             return self.waiting_admin.semaphore<1
-        return False
+        return True
 
     def is_new_bid_okay(self,bid_amount,bidder=None):
         if(not self.is_type_open()):
@@ -419,17 +419,16 @@ class Auction(models.Model):
     
     #expireation riggered, then excecute these fucntions    
     @staticmethod
-    @shared_task
+    @shared_task()
     ##@###haha critical section i love deadlocks!!
-    def beat_beat(self):
+    def beat_beat():
         #run every 10 minutes
         from mechanism.auction_live import LiveAuction
         
         
         for tuple in LiveAuction.objects.all():
             if(tuple.time_to_expire()):
-                print("tuple expired,now handling it")
-                #tuple.auction.handle_auction_expiration()
+                tuple.auction.handle_auction_expiration()
         
         ##noe same goes for 7 days logic
         from mechanism.auction_not_settled import NotSettledAuction
@@ -449,12 +448,30 @@ class Auction(models.Model):
         self.notify_that_auction_expired()
 
         #3
+        if(bid_winner is None):
+            self.handle_no_bidder()
+            return
+
         if self.is_type_open():
             self.push_to_not_settled_bucket()
         else:
             self.push_to_admin_waiting_bucket()
         
 
+    def handle_no_bidder(self):
+        self.pop_from_live_bucket()
+        
+        #this is not good
+        from mechanism.auction_resch import RescheduleAuction
+        
+        print("no bidder")
+        RescheduleAuction.objects.create(auction=self)
+        
+        self.notify_that_no_bidder_till_expiry()
+    
+
+    
+    
     def handle_winner_was_a_liar(self):
         #1
         from mechanism.bid_liars import LiarBidder
@@ -485,6 +502,9 @@ class Auction(models.Model):
     #############               NOTICE LOGIC STARTS HERE                      #############
     #############               NOTICE LOGIC STARTS HERE                      #############
     #notifications
+    def notify_that_no_bidder_till_expiry(self):
+        print("notify_that_no_bidder_till_expiry(self):")
+        
     def new_like_notification(self,liker):
         from .notification import Notification
         Notification.objects.create_for_new_like(self.user, liker)

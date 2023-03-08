@@ -68,6 +68,7 @@ class OtpFormForDisclose(forms.Form):
         cleaned_data = super().clean()
         auction = cleaned_data.get("auction")
 
+        self.auction=None
         try:
             self.auction=Auction.objects.get(id=auction)
         except Exception as e:
@@ -84,7 +85,7 @@ class OtpFormForDisclose(forms.Form):
             if(self.auction.disclosed_by_admins()):
                 raise ValidationError(f"Why are you entering otp, when no need be??")
 
-            if(self.auction.check_otp_for_admins(admin=some_admin,some_otp=self.cleaned_data.get("otp"))):
+            if(not self.auction.check_otp_for_admins(admin=some_admin,some_otp=self.cleaned_data.get("otp"))):
                 raise ValidationError(f"Oh no, You have entered wrong otp, we don't accept that.")
             #self.auction.admin
 

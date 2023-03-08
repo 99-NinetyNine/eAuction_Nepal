@@ -82,12 +82,20 @@ class DefaultView(View):
 class AdminOtpView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
         form=OtpFormForDisclose(self.request.POST)
+        print("hahahahaha")
         if form.is_valid():
-            form.handle_otp()
-            return HttpResponseRedirect(reverse(form.auction.get_absolute_url()))
+            if form.handle_otp(self.request.user):
+                messages.add_message(self.request, messages.SUCCESS, "Thank you for entering OTP.")
+                return HttpResponseRedirect(form.auction.get_absolute_url())
+            else:
+                messages.add_message(self.request, messages.SUCCESS, "Sorry, something wnet wrong.")
         
         error=form.get_err_msg()
         messages.add_message(self.request, messages.ERROR, error)
+        print(error,"\nerererer")
+        if(form.auction):
+            return HttpResponseRedirect(form.auction.get_absolute_url())
+
         return HttpResponseRedirect(reverse("home"))
 
         
@@ -251,6 +259,7 @@ class NewAuctionDetailView(View):
     bidder_paid_ninty_percent=False
     seven_days_since_won_and_not_paid=False
 
+    admins_otp_waiting     =   False
     adminA_entered_otp=False
     adminB_entered_otp=False
     adminC_entered_otp=False
@@ -289,6 +298,9 @@ class NewAuctionDetailView(View):
             self.adminA_entered_otp  =   self.auction.adminA_logged_in()
             self.adminB_entered_otp  =   self.auction.adminB_logged_in()
             self.adminC_entered_otp  =   self.auction.adminC_logged_in()
+        
+        else:
+            self.admins_otp_waiting     =   True
         
         if(not self.request.user.is_authenticated):
             

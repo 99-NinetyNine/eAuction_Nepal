@@ -37,7 +37,7 @@
                     {% endif %}
 
                     {% if exists_in_admin_waiting_bucket  %}
-                        <form class="product-bid-form" method="POST" action="{% url 'apply_bid' %}">
+                        <form class="product-bid-form" method="POST" action="{% url 'admin_otp' %}">
                             {% csrf_token %}
                             {{ admin_otp_form|crispy }}
                         

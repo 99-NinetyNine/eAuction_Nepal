@@ -179,3 +179,12 @@ from celery.schedules import crontab
 @shared_task()
 def hello():
     print("asas")
+
+CELERY_BEAT_SCHEDULE = {
+    'check_expiry_task': {
+        'task': 'mechanism.auction.beat_beat',
+        
+        #'schedule': crontab(minute='*/1'),
+        'schedule':5,
+    },
+}
