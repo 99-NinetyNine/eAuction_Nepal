@@ -15,7 +15,7 @@ class User(AbstractUser):
     latitude=models.CharField(max_length=20,blank=False,null=True)
     longitude=models.CharField(max_length=20,blank=False,null=True)
     phone_verified=models.BooleanField(default=False)
-    
+    date_of_birth=models.DateField(auto_now=True,null=True)
     is_inventory_incharge=models.BooleanField(default=False)
     is_admin_A=models.BooleanField(default=False)
     is_admin_B=models.BooleanField(default=False)
@@ -26,8 +26,20 @@ class User(AbstractUser):
         #use ai
         return User.objects.exclude(id=self.id)
 
+    def is_anonymous(self):
+        return self.is_authenticated
+    
+    def is_bidder(self):
+        ## ~(AVB) == ~A^~B
+        return not (self.is_anonymous() or self.is_one_of_admins())
+        
+        
+    def is_inventory_incharge_pfficer(self):
+        return self.is_inventory_incharge
+
     def is_one_of_admins(self):
         return self.is_admin_A or self.is_admin_B or self.is_admin_C
+
     def has_verified_phone(self):
         return self.phone_verified
 

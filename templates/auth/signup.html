@@ -47,51 +47,9 @@
                     <div class="or">
                         <span>Or</span>
                     </div>
-                    <form class="login-form">
-                        <div class="form-group mb-30">
-                            <label for="login-fn"><i class="far fa-user"></i></label>
-                            <input type="text" id="login-fn" placeholder="First Name">
-                        </div>
-                        
-                        <div class="form-group mb-30">
-                            <label for="login-ln"><i class="fas fa-user"></i></label>
-                            <input type="text" id="login-ln" placeholder="Last Name">
-                        </div>
-
-                        
-                        <div class="form-group mb-30">
-                            <label for="login-email"><i class="far fa-envelope"></i></label>
-                            <input type="text" id="login-email" placeholder="Email Address">
-                        </div>
-
-
-                        <div class="form-group mb-30">
-                            <label for="login-dob"><i class="far fa-calendar"></i></label>
-                            <input type="text" id="login-dob" placeholder="Date of Birth">
-                        </div>
-
-                        <div class="form-group mb-30">
-                            <label for="login-citi"><i class="far fa-id-card"></i></label>
-                            <input type="text" id="login-citi" placeholder="Citizenship number">
-                        </div>
-                        
-
-                        <div class="form-group mb-30">
-                            <label for="login-pass"><i class="fas fa-lock"></i></label>
-                            <input type="password" id="login-pass" placeholder="Password">
-                            <span class="pass-type"><i class="fas fa-eye"></i></span>
-                        </div>
-
-                        
-                        <div class="form-group mb-30">
-                            <label for="login-pass2"><i class="fas fa-lock"></i></label>
-                            <input type="password" id="login-pass2" placeholder="Confirm Password">
-                            <span class="pass-type"><i class="fas fa-eye"></i></span>
-                        </div>
-
-                        <div class="form-group checkgroup mb-30">
-                            <input type="checkbox" name="terms" id="check"><label for="check">Remember me </label>
-                        </div>
+                    <form class="login-form" action="{% url 'signup' %}" method="POST">
+                        {% csrf_token %}
+                        {{ signup_form|crispy }}
                         <div class="form-group mb-0">
                             <button type="submit" class="custom-button">SIGN UP</button>
                         </div>

@@ -98,19 +98,45 @@ admin_otp_view=AdminOtpView.as_view()
 
 
 
-class HomeView(LoginRequiredMixin,ListView):
-    model=Auction
-    template_name='_index.html'
-
+class HomeView(LoginRequiredMixin,View):
     
-    def get_context_data(self,**kwargs):
-        context=super().get_context_data(**kwargs)
-        qs=Auction.query.for_index_page()
+    newly_listed_auctions=None
+    not_newly_listed_auctions=None
+    auctions_inventory_incharge_created=None
+    auctions_waiting_for_admin=None
+    
+    def get(self,*args,**kwargs):
         
-        context["newly_listed"],context["others"]   =   qs
+        if self.request.user.is_anonymous():
+            self.prepare_auctions_for_anonymous()
+        elif self.request.user.is_inventory_incharge():
+            self.prepare_auctions_for_inventory_incharge()
+        elif self.request.user.is_one_of_admins():
+            self.prepare_auctions_for_one_of_admins()
+        elif self.request.user.is_bidder():
+            self.prepare_auctions_for_bidder()
         
+        return render(self.request,"_index.html",self.get_context_data())
+    
+
+    def prepare_auctions_for_anonymous(self):
+        self.newly_listed_auctions,self.not_newly_listed_auctions=Auction.query.for_index_page()
+
+    def prepare_auctions_for_inventory_incharge(self):
+        self.auctions_inventory_incharge_created=Auction.query.inventory_incharge_created(self.request.user)
+    def prepare_auctions_for_one_of_admins(self):
+        self.auctions_waiting_for_admin=Auction.query.waiting_for_admin(self.request.user)
+    def prepare_auctions_for_bidder(self):
+        self.newly_listed_auctions,self.not_newly_listed_auctions=Auction.query.for_index_page()
+    
+    def get_context_data(self,):
+        context={}
+        context["newly_listed_auctions"]                =   self.newly_listed_auctions
+        context["not_newly_listed_auctions"]            =   self.not_newly_listed_auctions
+        context["auctions_inventory_incharge_created"]  =   self.auctions_inventory_incharge_created
+        context["auctions_waiting_for_admincontext"]    =   self.auctions_waiting_for_admincontext
         return context
-        
+    
     
 
 def AuctionCreate(request):

@@ -1,0 +1,67 @@
+{% load static %}
+<!--============= Featured Auction Section Starts Here =============-->
+<section class="featured-auction-section padding-bottom mt--240 mt-lg--440 pos-rel">
+    <div class="container">
+        <div class="section-header cl-white mw-100 left-style">
+            <h3 class="title">Newly listed...</h3>
+        </div>
+        <div class="row justify-content-center mb-30-none">
+            {% for auction in newly_listed_auctions %} {% include "_auction.html" %}{% empty %}<h3> No new auction</h3>{% endfor %}
+        </div>
+    </div>
+</section>
+<!--============= Featured Auction Section Ends Here =============-->
+
+
+<!--============= Product Auction Section Starts Here =============-->
+<div class="product-auction padding-bottom">
+    <div class="container">
+        <div class="product-header mb-40">
+            <div class="product-header-item">
+                <div class="item">Sort By : </div>
+                <select name="sort-by" class="select-bar" style="display: none;">
+                    <option value="all">All</option>
+                    <option value="name">Name</option>
+                    <option value="date">Date</option>
+                    <option value="type">Type</option>
+                    <option value="car">Car</option>
+                </select><div class="nice-select select-bar" tabindex="0"><span class="current">All</span><ul class="list"><li data-value="all" class="option selected">All</li><li data-value="name" class="option">Name</li><li data-value="date" class="option">Date</li><li data-value="type" class="option">Type</li><li data-value="car" class="option">Car</li></ul></div>
+            </div>
+            <div class="product-header-item">
+                <div class="item">Show : </div>
+                <select name="sort-by" class="select-bar" style="display: none;">
+                    <option value="09">09</option>
+                    <option value="21">21</option>
+                    <option value="30">30</option>
+                    <option value="39">39</option>
+                    <option value="60">60</option>
+                </select><div class="nice-select select-bar" tabindex="0"><span class="current">09</span><ul class="list"><li data-value="09" class="option selected">09</li><li data-value="21" class="option">21</li><li data-value="30" class="option">30</li><li data-value="39" class="option">39</li><li data-value="60" class="option">60</li></ul></div>
+            </div>
+            <form class="product-search ml-auto">
+                <input type="text" placeholder="Item Name">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="row mb-30-none justify-content-center">
+            {% for auction in not_newly_listed_auctions %} {% include "_auction.html" %}{% empty %}<h3> No auctions</h3>{% endfor %}
+        </div>
+        <ul class="pagination">
+            <li>
+                <a href="#0"><i class="flaticon-left-arrow"></i></a>
+            </li>
+            <li>
+                <a href="#0">1</a>
+            </li>
+            <li>
+                <a href="#0" class="active">2</a>
+            </li>
+            <li>
+                <a href="#0">3</a>
+            </li>
+            <li>
+                <a href="#0"><i class="flaticon-right-arrow"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!--============= Product Auction Section Ends Here =============-->

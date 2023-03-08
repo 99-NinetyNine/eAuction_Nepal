@@ -59,14 +59,21 @@
                         </li>
                     </ul>
                     <ul class="cart-button-area">
-                        <li>
+                        {% comment %} <li>
                             <a href="#0" class="cart-button"><i class="flaticon-shopping-basket"></i><span class="amount">08</span></a>
-                        </li>                        
+                        </li>                         {% endcomment %}
+                        
                         <li>
-                        {% if request.user.is_authenticated %}
-                            <a href="{% url 'profile_view' %}" class="user-button"><i class="flaticon-user"></i></a>
-                        {% else %}
+                        {% if request.user.is_anonymous %}
                             <a href="{% url 'login' %}" class="user-button"><i class="flaticon-user"></i></a>
+                            <h6>Anonymous</h6>
+                        {% elif request.user.is_inventory_incharge %}
+                            <h6>Inventory Incharge</h6>
+                        {% elif request.user.is_one_of_admin %}
+                            <h6>Admin</h6>
+                        {% elif request.user.is_bidder %}
+                            <a href="{% url 'profile_view' %}" class="user-button"><i class="flaticon-user"></i></a>
+                            <h6>Bidder</h6>
                         {% endif %}
                         </li>                        
                     </ul>
@@ -82,24 +89,22 @@
                         </a>
                     </div>
                     <ul class="menu ml-auto">
-                        <li>
-                            <a href="{% url 'home' %}">Home</a>
-                            
-                        </li>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'home' %}">Notice</a></li>
 
                         <li>
-                        {% if request.user.is_inventory_incharge %}
-                            <a href="{% url 'create_auction' %} ">Auction</a>
-                        {% elif request.user.is_one_of_admins %}
-                            <a href ="{% url 'create_auction' %} ">Close Auction</a>
-                        {% else %}
-                            <a href="{% url 'bid_pending_lists' %} ">My Bid</a>
+                        {% if request.user.is_inventory_incharge_pfficer %}
+                            <a href="{% url 'create_auction' %} ">Create Auction</a>
+                        
+                        {% elif request.user.is_bidder %}
+                            <a href="{% url 'bid_pending_lists' %} ">Bid History</a>
                         {% endif %}
                         </li>
                         
                         <li>
                             <a href="{% url 'contact_view' %}">Contact</a>
                         </li>
+
                     </ul>
                     <form class="search-form">
                         <input type="text" placeholder="Search for brand, model....">
@@ -120,7 +125,7 @@
     <!--============= Header Section Ends Here =============-->
 
     <!--============= Cart Section Starts Here =============-->
-    <div class="cart-sidebar-area">
+    {% comment %} <div class="cart-sidebar-area">
         <div class="top-content">
             <a href="index.html" class="logo">
                 <img src="{% static 'images/demo/logo2.png' %}"alt="logo">
@@ -185,7 +190,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
     <!--============= Cart Section Ends Here =============-->
 
 {% block hero %}

@@ -1,0 +1,13 @@
+{% load static %}
+<!--============= Featured Auction Section Starts Here =============-->
+<section class="featured-auction-section padding-bottom mt--240 mt-lg--440 pos-rel">
+    <div class="container">
+        <div class="section-header cl-white mw-100 left-style">
+            <h3 class="title">Auctions you have created...</h3>
+        </div>
+        <div class="row justify-content-center mb-30-none">
+            {% for auction in auctions_inventory_incharge_created %} {% include "_auction.html" %}{% empty %}<h3> You have not created any auction</h3>{% endfor %}
+        </div>
+    </div>
+</section>
+<!--============= Featured Auction Section Ends Here =============-->
