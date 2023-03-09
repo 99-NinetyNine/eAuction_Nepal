@@ -67,7 +67,12 @@ class BidForm(forms.Form):
             bid_amount= cleaned_data.get("bid_amount"))):
             pass
         else:
-            raise ValidationError(f"Bid amount is not valid. Your bid must be greater that or equal to {auction.get_highest_bidder().bid_amount}.")
+            try:
+                some_val=auction.get_highest_bidder().bid_amount
+            except:
+                some_val=0
+            
+            raise ValidationError(f"Bid amount is not valid. Your bid must be greater that or equal to {some_val}.")
         
 
 
@@ -81,10 +86,10 @@ class BidForm(forms.Form):
                 tuple.bid_amount=self.cleaned_data["bid_amount"]
                 tuple.save()
             else:
-                bid=Bid.objects.create(auction=self.auction,bidder=bidder,bid_amount=self.cleaned_data["bid_amount"])
-                bid.save()
+                tuple=Bid.objects.create(auction=self.auction,bidder=bidder,bid_amount=self.cleaned_data["bid_amount"])
+                tuple.save()
 
-            return bid
+            return tuple
         except ValidationError as v:
             self.add_error("auction",v)
             return False
