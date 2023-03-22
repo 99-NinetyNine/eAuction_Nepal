@@ -1,6 +1,39 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+<div id="item-carousel" class="carousel slide" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#item-carousel" data-slide-to="0" class="active"></li>
+    <li data-target="#item-carousel" data-slide-to="1"></li>
+    {% comment %} <li data-target="#item-carousel" data-slide-to="2"></li> {% endcomment %}
+    {% comment %} <div class="carousel-item">
+      <iframe src="{{ auction.pdf.url }}#toolbar=0" width="100%" height="600px"></iframe>
+
+      
+    </div> {% endcomment %}
+  </ol>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="{{ auction.thumbnail.url }}" class="d-block w-100" alt="Item Photo">
+    </div>
+    
+    <div class="carousel-item">
+      <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="{{ auction.get_youtube }}" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#item-carousel" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#item-carousel" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+{% comment %} 
 <div class="product-details-slider-top-wrapper">
     <div class="product-details-slider owl-theme owl-carousel owl-loaded owl-drag" id="sync1">
     <div class="owl-stage-outer">
@@ -76,4 +109,4 @@
     <span class="det-next det-nav active">
         <i class="fas fa-angle-right"></i>
     </span>
-</div>
+</div> {% endcomment %}

@@ -80,7 +80,7 @@ class AuctionManager(models.Manager):
                 return auction.bids.all().order_by("-bid_amount").first()
             else:
                 None
-
+    
 class Auction(models.Model):
     id= models.UUIDField(
         auto_created=True,
@@ -127,6 +127,127 @@ class Auction(models.Model):
     #############               BUCKETS LOGIC HERE                      #############
     #############               BUCKETS LOGIC HERE                      #############
     #############               BUCKETS LOGIC HERE                      #############
+    
+    #test
+    def get_highest_bid_amount(self):
+        return 100
+    #test
+    def move_to_live(self):
+        try:
+            self.pop_from_live_bucket()
+        except:
+            try:
+                self.pop_from_admin_waiting_bucket()
+            except:
+                try:
+                    self.pop_from_not_settled_bucket()
+                except:
+                    try:
+                        self.pop_from_re_schedule_bucket()
+                    except:
+                        try:
+                            self.pop_from_settled_bucket()
+            
+                        except Exception as e:
+                            print(e)
+                            return
+    
+        self.push_to_live_bucket()
+
+    def move_to_admin_waiting(self):
+        try:
+            self.pop_from_live_bucket()
+        except:
+            try:
+                self.pop_from_admin_waiting_bucket()
+            except:
+                try:
+                    self.pop_from_not_settled_bucket()
+                except:
+                    try:
+                        self.pop_from_re_schedule_bucket()
+                    except:
+                        try:
+                            self.pop_from_settled_bucket()
+            
+                        except Exception as e:
+                            print(e)
+                            return
+
+        from mechanism.auction_admin_waiting import AdminWaitingAuction
+        AdminWaitingAuction.objects.create(auction=self)
+
+    def move_to_not_settled(self):
+        try:
+            self.pop_from_live_bucket()
+        except:
+            try:
+                self.pop_from_admin_waiting_bucket()
+            except:
+                try:
+                    self.pop_from_not_settled_bucket()
+                except:
+                    try:
+                        self.pop_from_re_schedule_bucket()
+                    except:
+                        try:
+                            self.pop_from_settled_bucket()
+            
+                        except Exception as e:
+                            print(e)
+                            return
+        from mechanism.auction_not_settled import NotSettledAuction
+        NotSettledAuction.objects.create(auction=self)
+
+
+    def move_to_settled(self):
+        try:
+            self.pop_from_live_bucket()
+        except:
+            try:
+                self.pop_from_admin_waiting_bucket()
+            except:
+                try:
+                    self.pop_from_not_settled_bucket()
+                except:
+                    try:
+                        self.pop_from_re_schedule_bucket()
+                    except:
+                        try:
+                            self.pop_from_settled_bucket()
+            
+                        except Exception as e:
+                            print(e)
+                            return
+        from mechanism.auction_settled import SettledAuction
+        SettledAuction.objects.create(auction=self)
+
+    def move_to_reschedule(self):
+        try:
+            self.pop_from_live_bucket()
+        except:
+            try:
+                self.pop_from_admin_waiting_bucket()
+            except:
+                try:
+                    self.pop_from_not_settled_bucket()
+                except:
+                    try:
+                        self.pop_from_re_schedule_bucket()
+                    except:
+                        try:
+                            self.pop_from_settled_bucket()
+            
+                        except Exception as e:
+                            print(e)
+                            return
+        
+        from mechanism.auction_reschedule import RescheduleAuction
+        RescheduleAuction.objects.create(auction=self)
+
+
+    ################################         #REAL ONES         ################################         
+    ################################                            ################################         
     
     ##live
     def push_to_live_bucket(self):
@@ -319,7 +440,7 @@ class Auction(models.Model):
         return True
     
 
-    def disclosed_by_particular_admin(self,admin=some_admin):
+    def disclosed_by_particular_admin(self,some_admin=None):
         try:
             if(some_admin.is_admin_A and self.waiting_admin.adminA_entered_otp()
                 or some_admin.is_admin_C and self.waiting_admin.adminB_entered_otp()
@@ -366,6 +487,13 @@ class Auction(models.Model):
     def __str__(self):
         return self.user.username +" auction %s" %str(self.id)[0:4]
 
+    #test
+    def get_expiry_date(self):
+        return "2023/3/22"
+    def get_expired_date(self):
+        return "2023/2/22"
+    ##test 
+    
     def get_number_of_bids(self):
         
         try:

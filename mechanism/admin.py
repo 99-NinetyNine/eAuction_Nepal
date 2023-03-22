@@ -19,7 +19,49 @@ class BidUserAdmin(UserAdmin):
 admin.site.register(User, BidUserAdmin)
 
 
-admin.site.register(Auction)
+
+
+@admin.action(description='Move selected to live')
+def move_to_live(modeladmin, request, queryset):
+    for auction in queryset:
+        auction.move_to_live()
+
+@admin.action(description='Move selected to admin waiting')
+def move_to_admin_waiting(modeladmin, request, queryset):
+    for auction in queryset:
+        auction.move_to_admin_waiting()
+
+@admin.action(description='Move selected to not settled')
+def move_to_not_settled(modeladmin, request, queryset):
+    for auction in queryset:
+        auction.move_to_not_settled()
+
+@admin.action(description='Move selected to settled')
+def move_to_settled(modeladmin, request, queryset):
+    for auction in queryset:
+        auction.move_to_settled()
+
+@admin.action(description='Move selected to re-schedule')
+def move_to_reschedule(modeladmin, request, queryset):
+    for auction in queryset:
+        auction.move_to_reschedule()
+
+class AuctionAdmin(admin.ModelAdmin):
+    actions = [
+        move_to_live,
+        move_to_admin_waiting,
+        move_to_not_settled,
+        move_to_settled,
+        move_to_reschedule,
+    ]
+
+admin.site.register(Auction, AuctionAdmin)
+
+
+
+
+
+
 admin.site.register(LiveAuction)
 admin.site.register(AdminWaitingAuction)
 admin.site.register(NotSettledAuction)

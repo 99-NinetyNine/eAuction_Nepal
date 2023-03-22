@@ -145,7 +145,9 @@ class BidPendingList(View):
 
     def get(self,request,*args,**kwargs):
         context=self.get_context_data()
-    
+        return render(self.request,self.template_name,context)
+
+        ##old
         html = render_to_string(self.template_name, context, request=request)
         return JsonResponse({"form": html})
 
@@ -156,9 +158,22 @@ class BidPendingList(View):
         return bids
     
     def get_context_data(self):
-        context={}
-        qs=self.get_queryset()
-        context[self.context_object_name]=qs
+        from mechanism.bidding import Bid
+        all_bids=Bid.objects.filter(bidder=self.request.user)
+        running_bids=[]
+        for bid in all_bids:
+            if bid.auction.exists_in_live_bucket():
+                running_bids.append(bid)
+        
+        from mechanism.auction_settled import SettledAuction
+        won_bids=SettledAuction.objects.filter(winner=self.request.user)
+        
+        
+        context={
+            "history":all_bids,
+            "running":running_bids,
+            "won":won_bids,
+        }
         return context
 
 class BidHandleView(LoginRequiredMixin,View):

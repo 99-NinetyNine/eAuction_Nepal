@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import (
     get_object_or_404,
     render,
+    reverse,
 )
 from django.db.models import Q
 from django.http import(
@@ -43,8 +44,10 @@ class ToRescheduleListView(View):
     def get(self,*args,**kwargs):
         if( not self.request.user.is_inventory_incharge_officer()):
             return HttpResponseRedirect(reverse("home"))
-
-        auctions=[a for a in RescheduleAuction.objects.all().auction]
+        qs=RescheduleAuction.objects.all()
+        auctions=[]
+        if qs.exists():
+            auctions=[tuple.auction for tuple in qs]
         context={
             "auctions":auctions,
         }
