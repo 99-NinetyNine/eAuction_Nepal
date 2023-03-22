@@ -317,6 +317,20 @@ class Auction(models.Model):
         if(self.exists_in_admin_waiting_bucket()):
             return self.waiting_admin.semaphore<1
         return True
+    
+
+    def disclosed_by_particular_admin(self,admin=some_admin):
+        try:
+            if(some_admin.is_admin_A and self.waiting_admin.adminA_entered_otp()
+                or some_admin.is_admin_C and self.waiting_admin.adminB_entered_otp()
+                or some_admin.is_admin_C and self.waiting_admin.adminC_entered_otp()
+            ):
+                return False
+        except Exception as e:
+            pritn(e)
+            return False
+        
+        return True
 
     def is_new_bid_okay(self,bid_amount,bidder=None):
         if(not self.is_type_open()):

@@ -93,14 +93,23 @@
                         <li><a href="{% url 'home' %}">Home</a></li>
                         <li><a href="{% url 'home' %}">Notice</a></li>
 
-                        <li>
-                        {% if request.user.is_inventory_incharge_officer %}
-                            <a href="{% url 'create_auction' %} ">Create Auction</a>
                         
-                        {% elif request.user.is_bidder %}
-                            <a href="{% url 'bid_pending_lists' %} ">Bid History</a>
-                        {% endif %}
+                        
+                        <li>
+                            {% if request.user.is_inventory_incharge_officer %}
+                                <a href="{% url 'create_auction' %} ">Create Auction</a>
+                            {% elif request.user.is_bidder %}
+                                <a href="{% url 'bid_pending_lists' %} ">Bid History</a>
+                            {% endif %}
                         </li>
+
+                        {% if request.user.is_inventory_incharge_officer %}
+                            <li><a href="{% url 'to_reschedule' %}">Check Re-Schedule</a></li>
+
+
+                        
+
+
                         
                         <li>
                             <a href="{% url 'contact_view' %}">Contact</a>

@@ -62,16 +62,8 @@ from celery import shared_task
 import random
 
 
-@shared_task()
-def hello_dodo(x):
-    print("beat beat",x)
-
-def testy_od(re):
-    hello_dodo.delay("hi")
-    return render(re,"_auction.html",{"msg":"doing something by celery"})
-
 def testy(re):
-    return render(re,"need.html",{"msg":"doing something by celery"})
+    return render(re,"test.html",{"msg":"doing something by celery"})
 
 class DefaultView(View):
     def get(self,*args,**kwargs):

@@ -1,0 +1,47 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %}Re-Schedule{% endblock title %}
+{% block hero %}
+
+
+<div class="hero-section style-2">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li>
+                    <a href="{% url 'home' %}">Re-Schedule</a>
+                </li>
+
+            </ul>
+            
+            
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li style="color:white;" ><span>{{ message }}</span></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            
+        </div>
+        <div class="bg_img hero-bg bottom_center" data-background="{% static 'images/demo/hero-bg.png' %}"style="background-image: url(&quot;{% static 'images/demo/hero-bg.png' %}&quot;);"></div>
+    </div>
+    <!--============= Hero Section Ends Here =============-->
+    
+    {% endblock hero %}
+
+    {% block content %}
+
+<!--============= Featured Auction Section Starts Here =============-->
+<section class="featured-auction-section padding-bottom mt--240 mt-lg--440 pos-rel">
+    <div class="container">
+        <div class="section-header cl-white mw-100 left-style">
+            <h3 class="title">Auctions you need to re-schedule...</h3>
+        </div>
+        <div class="row justify-content-center mb-30-none">
+            {% for auction in auctions %} {% include "_auction.html" %}{% empty %}<h3> You have not any auction to Re-Schedule</h3>{% endfor %}
+        </div>
+    </div>
+</section>
+<!--============= Featured Auction Section Ends Here =============-->
+{% endblock %}

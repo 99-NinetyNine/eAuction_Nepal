@@ -1,0 +1,4 @@
+## semaphore change to 3 bits to reporesent 3 admins
+## frontend --> my bids view, to reschedule view, profile view.
+## ##think any more changes needed
+## how bad design is it block and relaease amount ... can we make like TMS does??

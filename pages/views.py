@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.http import(
         HttpResponse,
         JsonResponse,
+        HttpResponseRedirect
 ) 
 from django.contrib import messages
 
@@ -27,6 +28,27 @@ from .forms import (
     RatingForm,
 )
 
+from mechanism.auction_reschedule import RescheduleAuction
+
+class MyBidsListView(View):
+    def get(self,*args,**kwargs):
+        
+        auctions=[a for a in RescheduleAuction.objects.all().auction]
+        context={
+            "auctions":auctions,
+        }
+        return render(self.request,"pages/my_bids.html",context)
+
+class ToRescheduleListView(View):
+    def get(self,*args,**kwargs):
+        if( not self.request.user.is_inventory_incharge_officer()):
+            return HttpResponseRedirect(reverse("home"))
+
+        auctions=[a for a in RescheduleAuction.objects.all().auction]
+        context={
+            "auctions":auctions,
+        }
+        return render(self.request,"pages/to_reschedule.html",context)
 
 class ContactView(View):
     def get(self,*a,**kw):

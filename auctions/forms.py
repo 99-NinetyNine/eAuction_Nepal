@@ -84,6 +84,10 @@ class OtpFormForDisclose(forms.Form):
         try:
             if(self.auction.disclosed_by_admins()):
                 raise ValidationError(f"Why are you entering otp, when no need be??")
+            
+            if(self.auction.disclosed_by_particular_admin(admin=some_admin)):
+                raise ValidationError("You have already entered your otp, please take a seat.. :)")
+                
 
             if(not self.auction.check_otp_for_admins(admin=some_admin,some_otp=self.cleaned_data.get("otp"))):
                 raise ValidationError(f"Oh no, You have entered wrong otp, we don't accept that.")
