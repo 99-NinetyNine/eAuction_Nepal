@@ -13,7 +13,7 @@
             <td data-history="bidder">
                 <div class="user-info">
                     <div class="thumb">
-                        <img src="{{ bid.bidder.profile.image.url }}" alt="history">
+                        <img src="{{ bid.bidder.profile_pic.url }}" alt="history">
                     </div>
                     <div class="content">
                         {{ bid.bidder.username }}
@@ -21,7 +21,7 @@
                 </div>
             </td>
             <td data-history="date">06/16/2021</td>
-            <td data-history="time"><h1> PM</h1></td>
+            <td data-history="time">3.30  PM</h1>
             <td data-history="unit price">Rs. {{ bid.bid_amount }}</td>
         </tr>
         {% empty %}

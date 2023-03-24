@@ -21,6 +21,11 @@ class User(AbstractUser):
     is_admin_B=models.BooleanField(default=False)
     is_admin_C=models.BooleanField(default=False)
     
+    citizenship_number=models.CharField(max_length=100,blank=False,null=True)
+    
+    def __str__(self):
+        return "user ::"+self.username
+        
     def get_my_subscribers(self):
         #todo
         #use ai

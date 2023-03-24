@@ -74,7 +74,7 @@ class DefaultView(View):
 class AdminOtpView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
         form=OtpFormForDisclose(self.request.POST)
-        print("hahahahaha")
+        
         if form.is_valid():
             if form.handle_otp(self.request.user):
                 messages.add_message(self.request, messages.SUCCESS, "Thank you for entering OTP.")
@@ -105,16 +105,25 @@ class HomeView(View):
     auctions_inventory_incharge_created=None
     auctions_waiting_for_admin=None
     
+    seeing_by_admins=None
+    seeing_by_bidder=None
+    seeing_by_anonymous=None
+    seeing_by_inventory_incharge=None
+    dear_admin_text=None
     def get(self,*args,**kwargs):
         print(self.request.user.is_authenticated)
         
         if not self.request.user.is_authenticated:
+            self.seeing_by_anonymous=True
             self.prepare_auctions_for_anonymous()
         elif self.request.user.is_inventory_incharge_officer():
+            self.seeing_by_inventory_incharge=True
             self.prepare_auctions_for_inventory_incharge()
         elif self.request.user.is_one_of_admins():
+            self.seeing_by_admins=True
             self.prepare_auctions_for_one_of_admins()
         elif self.request.user.is_bidder():
+            self.seeing_by_bidder=True
             self.prepare_auctions_for_bidder()
         
         return render(self.request,"_index.html",self.get_context_data())
@@ -126,6 +135,7 @@ class HomeView(View):
     def prepare_auctions_for_inventory_incharge(self):
         self.auctions_inventory_incharge_created=Auction.query.inventory_incharge_created(self.request.user)
     def prepare_auctions_for_one_of_admins(self):
+        self.dear_admin_text="admin A" if self.request.user.is_admin_A else "admin B" if self.request.user.is_admin_B else "admin C"
         self.auctions_waiting_for_admin=Auction.query.waiting_for_admin(self.request.user)
     def prepare_auctions_for_bidder(self):
         self.newly_listed_auctions,self.not_newly_listed_auctions=Auction.query.for_index_page()
@@ -135,8 +145,12 @@ class HomeView(View):
         context["newly_listed_auctions"]                =   self.newly_listed_auctions
         context["not_newly_listed_auctions"]            =   self.not_newly_listed_auctions
         context["auctions_inventory_incharge_created"]  =   self.auctions_inventory_incharge_created
-        context["auctions_waiting_for_admincontext"]    =   self.auctions_waiting_for_admin
-        
+        context["auctions_waiting_for_admin"]           =   self.auctions_waiting_for_admin
+        context["seeing_by_admins"]                     =   self.seeing_by_admins
+        context["seeing_by_bidder"]                     =   self.seeing_by_bidder
+        context["seeing_by_anonymous"]                  =   self.seeing_by_anonymous
+        context["seeing_by_inventory_incharge"]         =   self.seeing_by_inventory_incharge
+        context["dear_admin_text"]                      =   self.dear_admin_text
         return context
     
     
@@ -255,6 +269,7 @@ class NewAuctionDetailView(View):
     adminA_entered_otp=False
     adminB_entered_otp=False
     adminC_entered_otp=False
+    requesting_admin_entered_otp=False
 
 
     ##forms
@@ -262,11 +277,21 @@ class NewAuctionDetailView(View):
 
     bidder_paying_initial_form=None
     bidder_paying_remaining_form=None
+    bidder_paying_final_form=None
 
     bid_bidding_form=None
     bid_deleting_form=None
 
-    
+
+    ##march 23 updates lol
+    bid_increment_allowed=None
+    current_maximun_bid_amount=None
+
+    ##in case of bud winner
+    remaining_amount_to_pay=None
+    collateral_amount=None
+    price_paid_to_won=None
+
     def get(self,*args,**kwargs):
         self.pk=self.kwargs.get('pk')
         self.auction=get_object_or_404(Auction,id=self.pk)
@@ -286,10 +311,14 @@ class NewAuctionDetailView(View):
         self.exists_in_settled_bucket           =   self.auction.exists_in_settled_bucket()
         self.exists_in_re_schedule_bucket       =   self.auction.exists_in_re_schedule_bucket()
         
+
+        self.bid_increment_allowed=self.auction.get_bid_increment_allowed()
+        self.current_maximun_bid_amount=self.auction.get_current_maximun_bid_amount()
+
+
         if(self.exists_in_admin_waiting_bucket):
-            self.adminA_entered_otp  =   self.auction.adminA_logged_in()
-            self.adminB_entered_otp  =   self.auction.adminB_logged_in()
-            self.adminC_entered_otp  =   self.auction.adminC_logged_in()
+            self.requesting_admin_entered_otp  =   self.auction.disclosed_by_particular_admin(self.request.user)
+            
         
         else:
             self.admins_otp_waiting     =   True
@@ -344,14 +373,14 @@ class NewAuctionDetailView(View):
         if(self.exists_in_not_settled_bucket and self.request.user==self.auction.get_bid_winner()):
             self.is_he_winner=True
             self.bidder_paying_final_form     =   FinalPayForm(data={'auction':str(self.auction.id)})
-
+            self.remaining_amount_to_pay,self.collateral_amount,self.price_paid_to_won=self.auction.play_accountant_role()
     
         
         
 
     def get_context_data(self):
         context={}
-        if(self.is_type_open or self.auction.exists_in_settled_bucket()):
+        if(self.is_type_open or self.auction.exists_in_settled_bucket() or self.auction.exists_in_not_settled_bucket()):
             bids=self.auction.get_bids_by_order()
         else:
             bids=[]
@@ -379,9 +408,15 @@ class NewAuctionDetailView(View):
         context["seven_days_since_won_and_not_paid"]    =       self.seven_days_since_won_and_not_paid
         context["admin_otp_form"]                       =       self.admin_otp_form
         context["bidder_paying_initial_form"]           =       self.bidder_paying_initial_form
-        context["bidder_paying_remaining_form"]         =       self.bidder_paying_remaining_form
+        context["bidder_paying_final_form"]             =       self.bidder_paying_final_form
         context["bid_bidding_form"]                     =       self.bid_bidding_form
         context["bid_deleting_form"]                    =       self.bid_deleting_form
+        context["bid_increment_allowed"]                =       self.bid_increment_allowed
+        context["current_maximun_bid_amount"]           =       self.current_maximun_bid_amount
+        context["remaining_amount_to_pay"]              =       self.remaining_amount_to_pay
+        context["collateral_amount"]                    =       self.collateral_amount
+        context["price_paid_to_won"]                    =       self.price_paid_to_won
+        context["requesting_admin_entered_otp"]         =       self.requesting_admin_entered_otp
         context["auction"]                              =       self.auction
 
         pprint(context)

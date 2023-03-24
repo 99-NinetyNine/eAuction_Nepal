@@ -152,7 +152,7 @@ class InitialPayForm(forms.Form):
     
 class FinalPayForm(forms.Form):
     auction=forms.UUIDField(widget = forms.HiddenInput())
-    remaining_trn_id     =   forms.CharField(max_length=100,label="Enter deposit id (10% of amount)")
+    remaining_trn_id     =   forms.CharField(max_length=100,label="Enter deposit id (Bid amount less deposited amount)")
 
     def clean(self):
         cleaned_data = super().clean()
@@ -170,9 +170,7 @@ class FinalPayForm(forms.Form):
     def save(self,bidder):
         ##my own haha
         try:
-            if(self.auction.bidder_paid_remaining(bidder)):
-                raise ValidationError(f"Why are you paying again ??")
-
+            
             bid=self.auction.get_highest_bidder()
             
             if(bid.bidder != bidder):
@@ -185,7 +183,7 @@ class FinalPayForm(forms.Form):
             ##may need to notify
             #todo
             
-        
+            print(bid)
             return bid
         
         except ValidationError as v:

@@ -41,14 +41,16 @@ from .forms import (
 )
 class PayFinalView(LoginRequiredMixin,View):
     def post(self,*args,**kwargs):
+        
         form=FinalPayForm(self.request.POST)
         if form.is_valid():
             if form.save(bidder=self.request.user):
-                
-                messages.add_message(self.request, messages.ERROR, "Your deposit ID has been received. You can now start bidding.")
+                print("valid...")
+                messages.add_message(self.request, messages.SUCCESS, "Your deposit ID has been received. Thanks for completing the process.")
                 return HttpResponseRedirect(form.auction.get_absolute_url())
 
         error=form.get_err_msg()
+        print(error)
         messages.add_message(self.request, messages.ERROR, error)
         if form.auction:
             return HttpResponseRedirect(form.auction.get_absolute_url())

@@ -7,12 +7,14 @@
             {% if exists_in_dead_bucket %}
                 <h6 class="title">This Auction Starts in:</h6>
                 <div class="countdown">
-                    <div id="bid_counter1">0d  : 09h  : 23m  : 29s</div>
+                    <div id="bid_counter1">{{ auction.get_formated_starting_date }}
+                        {% comment %} 0d  : 09h  : 23m  : 29s</div> {% endcomment %}
                 </div>
             {% elif exists_in_live_bucket %}
                 <h6 class="title">This Auction Ends in:</h6>
                 <div class="countdown">
-                    <div id="bid_counter1">0d  : 11h  : 23m  : 29s</div>
+                    <div id="bid_counter1">{{ auction.get_formated_expiry_date }}</div>
+                    {% comment %} 0d  : 11h  : 23m  : 29s</div> {% endcomment %}
                 </div>
             {% elif exists_in_not_settled_bucket %}
                 <h6 class="title">This Auction is Closed:</h6>

@@ -46,7 +46,7 @@
                         <li>
                             <a href="#0" class="mr-3"><i class="fas fa-phone-alt"></i><span class="ml-2 d-none d-sm-inline-block">Customer Support</span></a>
                         </li>
-                        <li>
+                        {% comment %} <li>
                             <i class="fas fa-globe"></i>
                             <select name="language" class="select-bar" style="display: none;">
                                 <option value="en">En</option>
@@ -56,7 +56,7 @@
                                 <option value="Pk">Pk</option>
                                 <option value="Arg">Arg</option>
                             </select><div class="nice-select select-bar" tabindex="0"><span class="current">En</span><ul class="list"><li data-value="en" class="option selected">En</li><li data-value="Bn" class="option">Bn</li><li data-value="Rs" class="option">Rs</li><li data-value="Us" class="option">Us</li><li data-value="Pk" class="option">Pk</li><li data-value="Arg" class="option">Arg</li></ul></div>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
                     <ul class="cart-button-area">
                         {% comment %} <li>
@@ -65,17 +65,21 @@
                         
                         <li>
                         {% if request.user.is_authenticated is False  %}
-                            <a href="{% url 'login' %}" class="user-button"><i class="flaticon-user"></i></a>
                             <h6>Anonymous</h6>
-            
-                        {% elif request.user.is_inventory_incharge %}
-                            <h6>Inventory Incharge</h6>
-                        {% elif request.user.is_one_of_admins %}
-                            <h6>Admin</h6>
-                        {% elif request.user.is_bidder %}
-                            <a href="{% url 'profile_view' %}" class="user-button"><i class="flaticon-user"></i></a>
-                            <h6>Bidder</h6>
+                            <a href="{% url 'login' %}" class="user-button"><i class="flaticon-user"></i></a>
+
+                        {% else %}
+                            <a href="{% url 'logout' %}" class="user-button"><i class="flaticon-user"></i></a>
+                            {% if request.user.is_inventory_incharge %}
+                                <h6  style="color:white;">Inventory Incharge</h6>
+                            {% elif request.user.is_one_of_admins %}
+                                <h6  style="color:white;">Admin</h6>
+                            {% elif request.user.is_bidder %}
+                                
+                                <h6 style="color:white;">Bidder</h6>
+                            {% endif %}
                         {% endif %}
+
                         </li>                        
                     </ul>
                 </div>
@@ -222,7 +226,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <a href="#"><li class=""><span>Message</span></li></a>
+            
 
         </div>
         <div class="bg_img hero-bg bottom_center" data-background="{% static 'images/demo/hero-bg.png' %}"style="background-image: url(&quot;{% static 'images/demo/hero-bg.png' %}&quot;);"></div>
@@ -307,9 +311,6 @@
                                 </li>
                                 <li>
                                     <a href="#0">Art</a>
-                                </li>
-                                <li>
-                                    <a href="#0">Sports &amp; Outdoor</a>
                                 </li>
                             </ul>
                         </div>

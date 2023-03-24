@@ -17,6 +17,10 @@
     line-height: 1
 }
 
+.aspect-ratio {
+    aspect-ratio: 16 / 9;
+}
+
 .fa-lg {
     font-size: 1.33333em;
     line-height: .75em;

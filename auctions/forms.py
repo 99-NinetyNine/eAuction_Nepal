@@ -7,6 +7,7 @@ from mechanism.notification import Notification
 from django.contrib.auth import get_user_model
 User=get_user_model()
 
+from django import forms
 class SuperAdminLoginForm(forms.Form):
     otp=forms.CharField(max_length=10)
 
@@ -39,6 +40,9 @@ class AuctionForm(forms.ModelForm):
             "open_close"            :       "Mark the checkbox, If auction is of Type -> Open",
             "expiry_date"           :       "Enter date when auction closes:",
 
+        }
+        widgets = {
+            'open_close': forms.CheckboxInput(),
         }
     def clean_youtube(value):
         import re
@@ -85,7 +89,7 @@ class OtpFormForDisclose(forms.Form):
             if(self.auction.disclosed_by_admins()):
                 raise ValidationError(f"Why are you entering otp, when no need be??")
             
-            if(self.auction.disclosed_by_particular_admin(admin=some_admin)):
+            if(self.auction.disclosed_by_particular_admin(some_admin=some_admin)):
                 raise ValidationError("You have already entered your otp, please take a seat.. :)")
                 
 
@@ -93,10 +97,8 @@ class OtpFormForDisclose(forms.Form):
                 raise ValidationError(f"Oh no, You have entered wrong otp, we don't accept that.")
             #self.auction.admin
 
-            if(not self.auction.some_admin_entered_otp()):
-                raise ValidationError(f"Oh no, you maynot be admin, please fix the bug...")
-            
-            self.auction.push_to_not_settled_bucket()
+            if self.auction.handle_another_admin_entered_otp(some_admin):
+                self.auction.push_to_not_settled_bucket()
         except ValidationError as v:
             self.add_error("auction",v)
             return False

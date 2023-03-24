@@ -9,8 +9,8 @@
                 <div class="product-details-header">
                     <h2 class="title">{{ auction.title }}</h2>
                     <ul>
-                        <li>Listing ID: 14076242</li>
-                        <li>Item #: 7300-3356862</li>
+                        <li>Listing ID: {{ auction.id }}</li>
+                        <li>Item #: {{ auction.pk }}</li>
                         <div class="carousel-item">
 
                     </ul>
@@ -38,7 +38,7 @@
                         <h3> The auction is not expired yet</h3>
                     {% endif %}
 
-                    {% if exists_in_admin_waiting_bucket  %}
+                    {% if not is_type_open and  exists_in_admin_waiting_bucket and requesting_admin_entered_otp is False  %}
                         <form class="product-bid-form" method="POST" action="{% url 'admin_otp' %}">
                             {% csrf_token %}
                             {{ admin_otp_form|crispy }}

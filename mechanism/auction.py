@@ -29,7 +29,17 @@ class AuctionManager(models.Manager):
     def inventory_incharge_created(self,some_inventory_officer):
         return self.get_queryset().filter(user=some_inventory_officer)
     def waiting_for_admin(self,some_admin):
-        return self.for_index_page()
+        from mechanism.auction_admin_waiting import AdminWaitingAuction
+        waiting_list=AdminWaitingAuction.objects.all()
+        res=[]
+        for item in waiting_list:
+            print("hello")
+            if item.auction.disclosed_by_particular_admin(some_admin):
+                continue
+            print("hi")
+            res.append(item.auction)
+        
+        return res
 
     def for_index_page(self):
         qs=self.get_queryset()
@@ -330,7 +340,8 @@ class Auction(models.Model):
         from mechanism.auction_settled import SettledAuction
         
         assert self.exists_in_not_settled_bucket() is True
-        SettledAuction.objects.create(auction=self)
+        self.pop_from_not_settled_bucket()
+        SettledAuction.objects.create(auction=self,winner=self.get_highest_bidder().bidder)
 
     def pop_from_settled_bucket(self):
         self.settled.delete()
@@ -418,37 +429,28 @@ class Auction(models.Model):
 
         return False
     
-    def bidder_paid_remaining(self,bidder):
-        tuple=self.bids.filter(bidder=bidder)
-        if(tuple.exists()):
-            return tuple.final_paid()
-        return False
-
-    def adminA_logged_in(self):
-        if(self.exists_in_admin_waiting_bucket()):
-            return self.waiting_admin.semaphore<3
-        return True
-    
-    def adminB_logged_in(self):
-        if(self.exists_in_admin_waiting_bucket()):
-            return self.waiting_admin.semaphore<2
-        return True
-    
-    def adminC_logged_in(self):
-        if(self.exists_in_admin_waiting_bucket()):
-            return self.waiting_admin.semaphore<1
-        return True
     
 
     def disclosed_by_particular_admin(self,some_admin=None):
         try:
-            if(some_admin.is_admin_A and self.waiting_admin.adminA_entered_otp()
-                or some_admin.is_admin_C and self.waiting_admin.adminB_entered_otp()
-                or some_admin.is_admin_C and self.waiting_admin.adminC_entered_otp()
-            ):
-                return False
+            if some_admin.is_admin_A:
+                if  self.waiting_admin.adminA_entered_otp():
+                    return True
+                else:
+                    return False
+            if  some_admin.is_admin_B:
+                if self.waiting_admin.adminB_entered_otp():
+                    return True
+                else:
+                    return False
+            if some_admin.is_admin_C:
+                if self.waiting_admin.adminC_entered_otp():
+                    return True
+                else:
+                    return False
+                
         except Exception as e:
-            pritn(e)
+            print(e)
             return False
         
         return True
@@ -459,7 +461,7 @@ class Auction(models.Model):
         highest_bidding=self.get_highest_bidder()
         
         
-        if(highest_bidding.bid_amount<=bid_amount):
+        if(highest_bidding.bid_amount <= float(bid_amount)):
             return False
         
         return True
@@ -488,11 +490,36 @@ class Auction(models.Model):
         return self.user.username +" auction %s" %str(self.id)[0:4]
 
     #test
+    def play_accountant_role(self):
+        highest=self.get_highest_bidder()
+        
+        quote=highest.bid_amount
+        deposited=self.price_min_value
+        to_pay=quote-deposited
+        return to_pay,deposited,quote
+    
+    def get_formated_expiry_date(self):
+        return "0d  : 11h  : 23m  : 29s"
+    def get_formated_starting_date(self):
+        return "0d  : 11h  : 23m  : 29s"
+
     def get_expiry_date(self):
         return "2023/3/22"
     def get_expired_date(self):
         return "2023/2/22"
-    ##test 
+    def get_remaining_amount_to_pay(self):
+        return 100
+    def get_collateral_amount(self):
+        return 100
+    def get_price_paid_to_won(self):
+        return 100
+    
+    def get_bid_increment_allowed(self):
+        return 50
+    def get_current_maximun_bid_amount(self):
+        return 50
+
+
     
     def get_number_of_bids(self):
         
@@ -502,11 +529,13 @@ class Auction(models.Model):
             print(e)
             return 0
     def get_bids_by_order(self):
-        from django.db.models import Avg
-        qs=self.bids.annotate(ratings=Avg('bidder__to__rating')).order_by('bid_amount','-ratings')
-        return qs
+        return self.bids.all().order_by("-bid_amount")
+
     def get_youtube(self):
-        return f"https://www.youtube.com/embed/{self.youtube}?autoplay=1&mute=1&loop=1&controls=0"
+        y1=["asda ","asdasdH-X81"]
+        youtube=random.choice(y1)
+        #return f"https://www.youtube.com/embed/{self.youtube}?autoplay=1&mute=1&loop=1&controls=0"
+        return f"https://www.youtube.com/embed/{youtube}?autoplay=1&mute=1&loop=1&controls=0"
         
     def get_highest_bidder(self):
         return Auction.query.get_highest_bidder(self)
@@ -539,6 +568,10 @@ class Auction(models.Model):
     #############               SETTERS LOGIC STARTS HERE                      #############
     #############               SETTERS LOGIC STARTS HERE                      #############
     
+    def handle_another_admin_entered_otp(self,some_admin):
+        index="0" if some_admin.is_admin_A else "1" if some_admin.is_admin_B else "2"
+        return self.waiting_admin.down_semaphore(index=index)
+
     def some_admin_entered_otp(self):
         if self.exists_in_admin_waiting_bucket() \
             and self.waiting_admin.down_semaphore():

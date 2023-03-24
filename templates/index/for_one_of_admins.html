@@ -3,7 +3,7 @@
 <section class="featured-auction-section padding-bottom mt--240 mt-lg--440 pos-rel">
     <div class="container">
         <div class="section-header cl-white mw-100 left-style">
-            <h3 class="title">Enter OTP for these auctions...</h3>
+            <h3 class="title">Dear {{ dear_admin_text }}, please enter OTP for these auctions...</h3>
         </div>
         <div class="row justify-content-center mb-30-none">
             {% for auction in auctions_waiting_for_admin %} {% include "_auction.html" %}{% empty %}<h3> No recently closed auction.</h3>{% endfor %}

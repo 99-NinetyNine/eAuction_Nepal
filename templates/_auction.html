@@ -2,7 +2,7 @@
 <div class="col-sm-10 col-md-6 col-lg-4">
     <div class="auction-item-2">
         <div class="auction-thumb">
-            <a href="{{ auction.get_absolute_url }}"><img src="{{ auction.thumbnail.url }}" alt="product"></a>
+            <a href="{{ auction.get_absolute_url }}"><img src="{{ auction.thumbnail.url }}" class="img-fluid aspect-ratio" style="height:300;width:350;" alt="product"></a>
             {% comment %} {{ auction.db.thumbnail.url }}" {% endcomment %}
             <a href="#0" class="rating"><i class="far fa-star-filled"></i></a>
             <a href="#0" class="bid"><i class="flaticon-auction"></i></a>
@@ -18,7 +18,7 @@
                     </div>
                     <div class="amount-content">
                         <div class="current">Opening</div>
-                        <div class="amount">Rs. {{ auction.price_min_value }}.00</div>
+                        <div class="amount">Rs. {{ auction.price_min_value }}</div>
                     </div>
                 </div>
                 <div class="bid-amount">
@@ -27,18 +27,28 @@
                     </div>
                     <div class="amount-content">
                         <div class="current">Winning</div>
-                        <div class="amount">Rs. {{ auction.price_max_value }}.00</div>
+                        <div class="amount">Rs. {{ auction.price_max_value }}</div>
                     </div>
                 </div>
             </div>
             <div class="countdown-area">
-                <div class="countdown">
-                    <div id="bid_counter{{ auction.id }}">0d  : 12h  : 25m  : 45s</div>
-                </div>
+                
                 <span class="total-bids">{{ auction.get_number_of_bids }} Bids</span>
             </div>
             <div class="text-center">
-                <a href="{{ auction.get_absolute_url }}" class="custom-button">Submit a bid</a>
+                <a href="{{ auction.get_absolute_url }}" class="custom-button">
+{% if seeing_by_bidder %}
+                Submit a bid
+{% elif seeing_by_anonynous %}
+                    Submit a bid
+{% elif seeing_by_admins %}
+            Enter OTP
+{% elif seeing_by_inventory_incharge %}
+View detail...
+
+{% endif %}
+
+                </a>
             </div>
         </div>
     </div>

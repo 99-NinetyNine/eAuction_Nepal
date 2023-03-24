@@ -9,7 +9,7 @@
                     <div class="thumb">
                         <img src="{% static 'images/demo/tab3.png' %}" alt="product">
                     </div>
-                    <div class="content">Bid History (36)</div>
+                    <div class="content">Bid History</div>
                 </a>
             </li>
 
@@ -85,7 +85,7 @@
     <div class="tab-pane fade show{% if bidding_not_started %}active{% else %}{% endif %}" id="details">
         <div class="tab-details-content">
             <div class="header-area">
-                <h3 class="title">2012 Ford Escape Hybrid (Brooklyn, NY 11214)</h3>
+                <h3 class="title">{{ auction.title }}</h3>
                 <div class="item">
                     <table class="product-info-table">
                         <tbody>
@@ -100,8 +100,8 @@
                             <tr>
                                 <th>Year</th>
                                 <td>09-2017</td>
-                            </tr>
                             <tr>
+                            {% comment %} </tr>
                                 <th>Engine</th>
                                 <td>I-4 1,5 l</td>
                             </tr>
@@ -120,41 +120,38 @@
                             <tr>
                                 <th>Doors</th>
                                 <td>5</td>
-                            </tr>
+                            </tr> {% endcomment %}
                         </tbody>
                     </table>
                 </div>
                 <div class="item">
-                    <h5 class="subtitle">NYC Fleet / DCAS units may be located at either of two locations:</h5>
+                    <h5 class="subtitle">{% lorem 2 w random %} may be located at either of two locations:</h5>
                     <ul>
-                        <li>Brooklyn, NY (1908 Shore Parkway)</li>
-                        <li>Medford, NY (66 Peconic Ave)</li>
+                        <li>{% lorem 2 w random %}</li>
+                        <li>{% lorem 3 w random %}</li>
                     </ul>
                 </div>
                 <div class="item">
                     <h5 class="subtitle">This unit is located at:</h5>
                     <ul>
-                        <li>Kenben Industries Ltd.</li>
-                        <li>1908 Shore Parkway</li>
-                        <li>Brooklyn, NY 11214</li>
+                        <li>{{ auction.location }}</li>
+                        <li>{% lorem 2 w random %}</li>
+                        <li>{% lorem 4 w random %}</li>
                     </ul>
                 </div>
                 <div class="item">
                     <h5 class="subtitle">Acceptance of condition - buyer inspection/preview</h5>
-                    <p>Vehicles and equipment often display significant wear and tear. Assets are sold AS IS with no warranty, express or implied, and we highly recommend previewing them before bidding. The preview period is the only opportunity to inspect an asset to verify condition and suitability. No refunds, adjustments or returns will be entertained. </p>
-                    <p>Vehicle preview inspections of the vehicle can be done at the below location on Monday and Tuesday from 10am - 2pm. See Preview Rules Here.</p>                                
+                    {% lorem 3 p %}
                     <ul>
-                        <li>Kenben Industries Ltd.</li>
-                        <li>1908 Shore Parkway</li>
-                        <li>Brooklyn, NY 11214</li>
+                        <li>{% lorem 2 w random %}</li>
+                        <li>{% lorem 4 w random %}</li>
+                        <li>{% lorem 2 w random %}</li>
                     </ul>
                     <p>BUYER is responsible for all storage fees at time of pick-up. See above under IMPORTANT PICK-UP TIMES for specific requirements for this asset, but generally assets must be picked up within 2 business days of payment otherwise additional storage fees will be applied.</p>
                 </div>
                 <div class="item">
                     <h5 class="subtitle">Legal Notice</h5>
-                    <p>Vehicles may not be driven off the lot except with a dealer plate affixed. By law, vehicles are not permitted to be parked on or to drive on the streets of New York without registration and plates registered to the vehicle. If the buyer cannot obtain the required registration and plates prior to pick up, they should have the vehicle towed at their own expense. The buyer should have the vehicle towed at their own expense.</p>
-                    <p>Condition: Untested - Sold As-Is</p>
-                    <p>Employees of , its subcontractors and affiliated companies, employees of the NYC Government and those bidding on behalf of PropertyRoom.com, its subcontractors and affiliated companies and employees of the NYC Government are not permitted to bid on or purchase NYC Fleet/DCAS assets. </p>
+                    {% lorem 3 p %}
                 </div>
                 <div class="item">
                     <h5 class="subtitle">Condition</h5>
@@ -166,10 +163,7 @@
                 </div>
                 <div class="item">
                     <h5 class="subtitle">Buyer Responsibility</h5>
-                    <p>The BUYER will receive an email notification from PropertyRoom.com following the close of an auction. After fraud verification and payment settlement, we will email the BUYER instructions for retrieving the ASSET from the Will-Call Location listed above.</p>
-                    <p>All applicable shipping, logistics, transportation, customs, fees, taxes, export/import activities and all associated costs are the sole responsibility of the BUYER. No shipping, customs, export or import assistance is available from .</p>
-                    <p>When applicable for a given ASSET, BUYER bears responsibility for determining motor vehicle registration requirements in the applicable jurisdiction as well as costs, including any fees, registration fees, taxes, etc., owed as a result of BUYER registering an ASSET; for example, BUYER bears sole responsibility for all title/registration/smog and other such fees.</p>
-                    <p>BUYER is responsible for all storage fees at time of pick-up. See above under IMPORTANT PICK-UP TIMES for specific requirements for this asset, but generally assets must be picked up within 2 business days of payment otherwise additional storage fees will be applied.</p>
+                    {% lorem 3 p %}
                 </div>
             </div>
         </div>
@@ -188,15 +182,15 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Customer Pick-up (within 10 days)</td>
+                                <td>{% lorem 2 w random %}</td>
                                 <td>$0.00</td>
                             </tr>
                             <tr>
-                                <td>Standard Shipping (5-7 business days)</td>
+                                <td>{% lorem 2 w random %}</td>
                                 <td>Not Applicable</td>
                             </tr>
                             <tr>
-                                <td>Expedited Shipping (2-4 business days)</td>
+                                <td>{% lorem 2 w random %}</td>
                                 <td>Not Applicable</td>
                             </tr>
                         </tbody>
@@ -219,7 +213,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How to start bidding?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
                 <div class="faq-item">
@@ -227,7 +221,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">Security Deposit / Bidding Power </span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
                 <div class="faq-item">
@@ -235,7 +229,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">Delivery time to the destination port </span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
                 <div class="faq-item">
@@ -243,7 +237,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How to register to bid in an auction?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
                 <div class="faq-item open active">
@@ -251,7 +245,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">How will I know if my bid was successful?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
                 <div class="faq-item">
@@ -259,7 +253,7 @@
                         <img src="{% static 'images/demo/faq.png' %}" alt="css"><span class="title">What happens if I bid on the wrong lot?</span><span class="right-icon"></span>
                     </div>
                     <div class="faq-content">
-                        <p>All successful bidders can confirm their winning bid by checking the “”. In addition, all successful bidders will receive an email notifying them of their winning bid after the auction closes.</p>
+                        {% lorem 3 p %}
                     </div>
                 </div>
             </div>
