@@ -8,6 +8,8 @@ The e-Auction system is designed to facilitate the online auctioning of confisca
 ## Report
 Full report is available [here](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/eAuction%20Final%20report.docx.pdf)
 
+## OOAD
+Full Case Study is available [here](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/eAuction_Nepal_OOAD.pdf)
 
 ### eAuction Nepal Diagrams
 
