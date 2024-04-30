@@ -5,9 +5,9 @@
 This project focuses on developing an online auction system for the Department of Customs, Nepal. The system aims to streamline the auctioning process for confiscated goods, providing a transparent and efficient platform.
 
 ## Report
-(https://github.com/99-NinetyNine/ebidding_group_project/blob/master/eAuction%20Final%20report.docx.pdf)
-## Team Members
+Full report is available [here])(https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/eAuction%20Final%20report.docx.pdf)
 
+## Team Members
 - Sailesh Shiwakoti (076BCT063)
 - Suraj Niroula (076BCT089)
 - Surya Narayan Chaudhary (076BCT091)
@@ -70,12 +70,24 @@ The project covers all aspects of system development, implementation, and mainte
 - **Inventory Management:**
   - Managed inventory through a scheduler process for effective auction lifecycle.
 
-### Diagrams
+
+### eAuction Nepal Diagrams
 
 - **Use Case Diagram**
-- **Schema Diagram**
+  [![Use Case Diagram](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/usecase.png)](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/usecase.png)
+
 - **Sequence Diagram**
+  [![Sequence Diagram](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/seuce.png)](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/seuce.png)
+
 - **Class Diagram**
+  [![Class Diagram](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/class.png)](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/class.png)
+
+- **Schema Diagram**
+  [![Schema Diagram](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/rdbms.png)](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/rdbms.png)
+
+- **Auction Workflow**
+  [![Auction Workflow](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/auction_workflow_vqdCB80.png)](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/media/AuctionImages/auction_workflow_vqdCB80.png)
+  
 
 ## Tools and Technologies Used
 
