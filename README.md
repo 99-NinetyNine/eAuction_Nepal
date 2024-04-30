@@ -5,7 +5,7 @@
 This project focuses on developing an online auction system for the Department of Customs, Nepal. The system aims to streamline the auctioning process for confiscated goods, providing a transparent and efficient platform.
 
 ## Report
-Full report is available [here])(https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/eAuction%20Final%20report.docx.pdf)
+Full report is available [here](https://github.com/99-NinetyNine/eAuction_Nepal/blob/master/eAuction%20Final%20report.docx.pdf)
 
 ## Team Members
 - Sailesh Shiwakoti (076BCT063)
