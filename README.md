@@ -6,9 +6,7 @@ The e-Auction system is designed to facilitate the online auctioning of confisca
 
 # Demo
 Welcome to my project! Here's a video demonstrating how it works:
-
-[d](https://www.youtube.com/embed/fKMxd1meZNM)
-<iframe width="560" height="315" src="https://www.youtube.com/embed/fKMxd1meZNM" frameborder="0" allowfullscreen></iframe>
+[Video link]("https://www.youtube.com/watch?v=fKMxd1meZNM")
 
 
 ## Report
