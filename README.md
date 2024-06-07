@@ -5,7 +5,7 @@
 The e-Auction system is designed to facilitate the online auctioning of confiscated items by the Department of Customs. The project investigates the effectiveness of online auctions in selling seized items and aims to improve efficiency, transparency, and revenue generation.
 
 ## Demo
-[Here's]((https://www.youtube.com/watch?v=fKMxd1meZNM)) a video demonstrating how it works: 
+[Here's](https://www.youtube.com/watch?v=fKMxd1meZNM) a video demonstrating how it works.
 
 
 ## Report
